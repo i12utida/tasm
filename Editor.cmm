@@ -1,0 +1,21 @@
+#include <string.hmm>
+#include <stdlib.hmm>
+#include <stdio.hmm>
+#include <ctype.hmm>
+
+#include "Editor.hmm"
+#include "Assemble.hmm"
+#include "Lexical.hmm"
+#include "RsvWord.hmm"
+#include "OperationTbl.hmm"
+
+public void printRsvWord(int i){
+    printf("print %s\n",rsvWord[i].token);
+    fputs(rsvWord[i].token,listfp);
+    fputs("\t\t",listfp);
+}
+
+public void printBinary(int i){
+    printf("print %s binary\n",rsvWord[i].token);
+    fputs(operationtbl[i].machine_code,binaryfp);
+}

@@ -1,0 +1,49 @@
+#include "OperationTbl.hmm"
+#include "Lexical.hmm"
+
+public OperationTbl[] operationtbl = {
+{ LxNO,     1,		"00",		1		}, 
+{ LxLD,   	2,		"10",		4		},
+{ LxST,		2,		"20",		5		}, 
+{ LxADD, 	2,		"30",		4		},
+{ LxSUB,	2,		"40",		4		}, 
+{ LxCMP,  	2,		"50",		4		},
+{ LxAND,	2,		"60",		4		}, 
+{ LxOR,   	2,		"70",		4		},
+{ LxXOR,	2,		"80",		4		}, 
+{ LxSHLA, 	1,		"90",		2		},
+{ LxSHLL,	1,		"91",		2		}, 
+{ LxSHRA, 	1,		"92",		2		},
+{ LxSHRL,	1,		"93",		2		}, 
+{ LxJMP, 	2,		"A0",		6		},
+{ LxJZ,		2,		"A4",		6		}, 
+{ LxJC,  	2,		"A8",		6		},
+{ LxJM,		2,		"AC",		6		}, 
+{ LxCALL, 	2,		"B0",		6		},
+{ LxJNZ, 	2,		"B4",		6		}, 
+{ LxJNC, 	2,		"B8",		6		},
+{ LxJNM, 	2,		"BC",		6		}, 
+{ LxIN, 	2,		"C0",		3		},
+{ LxOUT,	2,		"C3",		3		}, 
+{ LxPUSH, 	1,		"D0",		2		},
+{ LxPUSHF,	1,		"DD",		1		}, 
+{ LxPOP, 	1,		"D2",		2		},
+{ LxPOPF,	1,		"DF",		1		}, 
+{ LxEI,		1,		"E0",		1		},
+{ LxDI,		1,		"E3",		1		}, 
+{ LxRET,	1,		"EC",		1		},
+{ LxRETI,	1,		"EF",		1		}, 
+{ LxHALT,	1,		"FF",		1		},
+{ LxEQU,	0,		"FF",		7		}, 
+{ LxORG,	0,		"FF",		7		},
+{ LxDS,		0,		"FF",		7		}, 
+{ LxDC,		1,		"FF",		8		},
+
+{ LxG0,		0,  	"00",		0   	}, 
+{ LxG1,		0,  	"04",		0   	},
+{ LxG2,		0,  	"08",		0   	}, 
+{ LxSP,		0,  	"0C",		0   	}
+};
+
+
+

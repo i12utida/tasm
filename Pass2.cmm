@@ -1,0 +1,115 @@
+#include <stdlib.hmm>
+#include <stdio.hmm>
+#include <ctype.hmm>
+#include <string.hmm>
+
+#include "Pass2.hmm"
+#include "Lexical.hmm"
+#include "SymTbl.hmm"
+#include "OperationType.hmm"
+#include "OperationTbl.hmm"
+#include "Editor.hmm"
+
+// 大域変数
+public boolean pass2flag = false;
+
+// static変数
+boolean errflag;        /* エラーフラグ */
+int length;
+int line;               /* 行数 */
+
+// Pass2の初期化
+public void initializePass2(){
+    errflag = false;
+    length = 0;
+    line = 0;
+}
+public boolean pass2(){
+    while(true){
+        token = getTok();
+        if(token == LABEL){
+            getLabelAddress();
+        } else {
+            if(token == LxNO){
+                printRsvWord(token);
+                opType(operationtbl[LxNO].analyzer);
+            } else if(token == LxLD){
+                printRsvWord(token);
+                printBinary(token);
+                opType(operationtbl[LxLD].analyzer);
+            } else if(token == LxST){
+                opType(operationtbl[LxST].analyzer);
+            } else if (token == LxADD){
+            	opType(operationtbl[LxADD].analyzer);
+            } else if(token == LxSUB){
+            	opType(operationtbl[LxSUB].analyzer);
+        	} else if(token == LxCMP){
+            	opType(operationtbl[LxCMP].analyzer);
+        	} else if(token == LxAND){
+            	opType(operationtbl[LxAND].analyzer);
+        	} else if(token == LxOR){
+            	opType(operationtbl[LxOR].analyzer);
+        	} else if(token == LxXOR){
+            	opType(operationtbl[LxOR].analyzer);
+        	} else if(token == LxSHLA){
+            	opType(operationtbl[LxSHLA].analyzer);
+        	} else if(token == LxSHLL){
+            	opType(operationtbl[LxSHLL].analyzer);
+        	} else if(token == LxSHRA){
+            	opType(operationtbl[LxSHRA].analyzer);
+        	} else if(token == LxSHRL){
+            	opType(operationtbl[LxSHRL].analyzer);
+        	} else if(token == LxJMP){
+            	opType(operationtbl[LxJMP].analyzer);
+        	} else if(token == LxJZ){
+            	opType(operationtbl[LxJZ].analyzer);
+        	} else if(token == LxJC){
+            	opType(operationtbl[LxJC].analyzer);
+        	} else if(token == LxJM){
+            	opType(operationtbl[LxJM].analyzer);
+        	} else if(token == LxCALL){
+            	opType(operationtbl[LxCALL].analyzer);
+        	} else if(token == LxJNZ){
+            	opType(operationtbl[LxJNZ].analyzer);
+        	} else if(token == LxJNC){
+            	opType(operationtbl[LxJNC].analyzer);
+        	} else if(token == LxJNM){
+            	opType(operationtbl[LxJNM].analyzer);
+        	} else if(token == LxIN){
+            	opType(operationtbl[LxIN].analyzer);
+        	} else if(token == LxOUT){
+            	opType(operationtbl[LxOUT].analyzer);
+        	} else if(token == LxPUSH){
+            	opType(operationtbl[LxPUSH].analyzer);
+        	} else if(token == LxPUSHF){
+            	opType(operationtbl[LxPUSHF].analyzer);
+        	} else if(token == LxPOP){
+            	opType(operationtbl[LxPOP].analyzer);
+        	} else if(token == LxPOPF){
+            	opType(operationtbl[LxPOPF].analyzer);
+        	} else if(token == LxEI){
+            	opType(operationtbl[LxEI].analyzer);
+        	} else if(token == LxDI){
+            	opType(operationtbl[LxDI].analyzer);
+        	} else if(token == LxRET){
+            	opType(operationtbl[LxRET].analyzer);
+        	} else if(token == LxRETI){
+            	opType(operationtbl[LxRETI].analyzer);
+        	} else if(token == LxHALT){
+            	opType(operationtbl[LxHALT].analyzer);
+        	} else if(token == LxEQU){
+            	opType(operationtbl[LxEQU].analyzer);
+        	} else if(token == LxORG){
+            	opType(operationtbl[LxORG].analyzer);
+        	} else if(token == LxDC){
+            	opType(operationtbl[LxDC].analyzer);
+        	} else if(token == LxDS){
+            	opType(operationtbl[LxDS].analyzer);
+        	} else{
+            printf("pass2end\n");
+            return false;
+        	}
+    	}
+    }
+    return true;
+}

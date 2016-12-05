@@ -1,0 +1,7 @@
+// 予約語の一覧表
+struct RsvWord {
+  char[] token;                         /* つづり */
+  int  operation_id;                    /* トークン値の組 */
+};
+
+public RsvWord[] rsvWord;

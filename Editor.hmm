@@ -1,0 +1,2 @@
+public void printRsvWord(int i);
+public void printBinary(int i);

@@ -1,0 +1,110 @@
+#include <stdio.hmm>
+#include <stdlib.hmm>
+
+#include "Pass1.hmm"
+#include "Lexical.hmm"
+#include "SymTbl.hmm"
+#include "OperationTbl.hmm"
+
+// 大域変数
+public boolean pass1flag = false;
+
+// static変数
+boolean errflag;        /* エラーフラグ */
+int length;
+int line;               /* 行数 */
+
+// Pass1の初期化
+public void initializePass1(){
+    errflag = false;
+    length = 0;
+    line = 0;
+}
+
+public boolean pass1(){
+    printf("pass1start\n");
+    while(true){
+        token = getTok();
+        if(token == LABEL){
+            asignLabel();
+        } else if(token == LxNO){
+            increaseSymbleAddress(operationtbl[LxNO].size);
+        } else if(token == LxLD){
+            printf("before increase LD\n");
+            increaseSymbleAddress(operationtbl[LxLD].size);
+        } else if(token == LxST){
+            increaseSymbleAddress(operationtbl[LxST].size);
+        } else if (token == LxADD){
+            increaseSymbleAddress(operationtbl[LxADD].size);
+        } else if(token == LxSUB){
+            increaseSymbleAddress(operationtbl[LxSUB].size);
+        } else if(token == LxCMP){
+            increaseSymbleAddress(operationtbl[LxCMP].size);
+        } else if(token == LxAND){
+            increaseSymbleAddress(operationtbl[LxAND].size);
+        } else if(token == LxOR){
+            increaseSymbleAddress(operationtbl[LxOR].size);
+        } else if(token == LxXOR){
+            increaseSymbleAddress(operationtbl[LxXOR].size);
+        } else if(token == LxSHLA){
+            increaseSymbleAddress(operationtbl[LxSHLA].size);
+        } else if(token == LxSHLL){
+            increaseSymbleAddress(operationtbl[LxSHLL].size);
+        } else if(token == LxSHRA){
+            increaseSymbleAddress(operationtbl[LxSHRA].size);
+        } else if(token == LxSHRL){
+            increaseSymbleAddress(operationtbl[LxSHRL].size);
+        } else if(token == LxJMP){
+            increaseSymbleAddress(operationtbl[LxJMP].size);
+        } else if(token == LxJZ){
+            increaseSymbleAddress(operationtbl[LxJZ].size);
+        } else if(token == LxJC){
+            increaseSymbleAddress(operationtbl[LxJC].size);
+        } else if(token == LxJM){
+            increaseSymbleAddress(operationtbl[LxJM].size);
+        } else if(token == LxCALL){
+            increaseSymbleAddress(operationtbl[LxCALL].size);
+        } else if(token == LxJNZ){
+            increaseSymbleAddress(operationtbl[LxJNZ].size);
+        } else if(token == LxJNC){
+            increaseSymbleAddress(operationtbl[LxJNC].size);
+        } else if(token == LxJNM){
+            increaseSymbleAddress(operationtbl[LxJNM].size);
+        } else if(token == LxIN){
+            increaseSymbleAddress(operationtbl[LxIN].size);
+        } else if(token == LxOUT){
+            increaseSymbleAddress(operationtbl[LxOUT].size);
+        } else if(token == LxPUSH){
+            increaseSymbleAddress(operationtbl[LxPUSH].size);
+        } else if(token == LxPUSHF){
+            increaseSymbleAddress(operationtbl[LxPUSHF].size);
+        } else if(token == LxPOP){
+            increaseSymbleAddress(operationtbl[LxPOP].size);
+        } else if(token == LxPOPF){
+            increaseSymbleAddress(operationtbl[LxPOPF].size);
+        } else if(token == LxEI){
+            increaseSymbleAddress(operationtbl[LxEI].size);
+        } else if(token == LxDI){
+            increaseSymbleAddress(operationtbl[LxDI].size);
+        } else if(token == LxRET){
+            increaseSymbleAddress(operationtbl[LxRET].size);
+        } else if(token == LxRETI){
+            increaseSymbleAddress(operationtbl[LxRETI].size);
+        } else if(token == LxHALT){
+            increaseSymbleAddress(operationtbl[LxHALT].size);
+        } else if(token == LxEQU){
+            ;
+        } else if(token == LxORG){
+            ;
+        } else if(token == LxDC){
+            increaseSymbleAddress(operationtbl[LxDC].size);
+        } else if(token == LxDS){
+            asignDS();
+        } else{
+            printf("pass1end\n");
+            return false;
+        }
+    }
+    
+    return true;
+}
