@@ -1,0 +1,119 @@
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#include <string.hmm>
+
+include "Util.hmm"
+include "Lexical.hmm"
+
+char[] eq_str = array(LENGTH);
+
+/*
+ * <式> ::= <項> + <式> | <項> - <式> | <項>
+ */
+int expression(){
+    int v = term();
+    
+    while(token==PLS || token==MNS){
+	if(token==PLS){           // 加算
+	    opr += "+";           // アセンブルリスト用
+	    token = getToken();
+	    v += term();
+	}
+	else{                     // 減算
+	    opr += "-";           // アセンブルリスト用
+	    token = getToken();
+	    v -= term();
+	}
+    }
+    return v;
+}
+
+/*
+ * <項> ::= <因子１> * <項> | <因子１> / <項> | <因子１>
+ */
+int term(){
+    int v = factor();
+    while(token==MUL || token==DIV){
+	if(token==MUL){           // 乗算
+	    opr += "*";           // アセンブルリスト用
+	    token = getToken();
+	    v *= factor();
+	}
+	else{                     // 除算
+	    opr += "/";           // アセンブルリスト用
+	    token = getToken();
+	    v /= factor();
+	}
+    }
+    return v;
+}
+
+int factor(){
+    int v = 1;
+    
+    /* 因子１ */
+    if(token_id==PLUS){               // 正の数
+	opr += "+";               // アセンブルリスト用
+	token_id = getToken();
+    }
+    else if(token_id==MINUS){          // 負の数
+	v = -1;
+	opr += "-";               // アセンブルリスト用
+	token_id = getToken();
+    }
+
+    /* 因子 */
+    if(token_id==INTEGER){           // 数値（10進数, 16進数, 文字定数）
+	v *= getValue();          // token の数値
+	opr += getSrc();
+    }
+    else if(token_id==NAME){         // ラベル
+	var i = getAddr(getSrc()); // ラベルのアドレス
+	opr += getSrc();
+	if(i==null){              // ラベルが登録されてない
+	    setErr(UND_Idt);
+	}
+	else{
+	    v *= i;               // ラベルのアドレス
+	}
+    }
+    else if(token_id==LBR){          // ( 式 )
+	opr += "(";               // アセンブルリスト用
+	token_id = getToken();
+	v *= expression();        // 式を計算
+	if(token_id!=RBR){
+	    setErr(UNB_Br);
+	}
+	opr += ")";               // アセンブルリスト用
+    }
+    else{
+	setErr(BAD_Exp);
+    }
+
+    token_id = getToken();
+    return v;
+}
+
+public int address1Analyzer(){
+
+}
+
+public int address2Analyzer(){
+
+}
+
+public int valueAnalyzer(){
+
+}
+
+public int eqAnalyzer(){
+
+}
+
+public char[] toHex(int digit){
+
+}
+
+public void setEqStr(){
+
+}

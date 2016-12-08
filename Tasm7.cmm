@@ -5,9 +5,7 @@
 
 #include "Assemble.hmm"
 #include "Error.hmm"
-#include "Lexical.hmm"
 #include "Pass1.hmm"
-#include "SymTbl.hmm"
 #include "Pass2.hmm"
 
 // 大域変数
@@ -66,28 +64,24 @@ public int main(int argc, char[][] argv){
    //使い方表示終わり
 
     // 全ての初期化
-    token = 0;
-    Initialization();
+    initPass1();
    
 
     // Pass1の実行
-    while(pass1()){
-        ;
-    }
-
-    pass1flag = true;
+    pass1(sourcefp);
     fclose(sourcefp);
-    Initialization();
+
+/* とりあえずpass1まで
 
     // Pass2の実行
     sourcefp = fopen(argv[1],"r");
-    while(pass2()){
-        ;
-    }
+    initPass2();
+    pass2();
 
+*/
+    // ファイルをクローズ
     fclose(sourcefp);
     fclose(listfp);
     fclose(binaryfp);
-    free(ds);
     return 0 ;
 }

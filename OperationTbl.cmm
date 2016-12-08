@@ -37,13 +37,17 @@ public OperationTbl[] operationtbl = {
 { LxEQU,	0,		"FF",		7		}, 
 { LxORG,	0,		"FF",		7		},
 { LxDS,		0,		"FF",		7		}, 
-{ LxDC,		1,		"FF",		8		},
-
-{ LxG0,		0,  	"00",		0   	}, 
-{ LxG1,		0,  	"04",		0   	},
-{ LxG2,		0,  	"08",		0   	}, 
-{ LxSP,		0,  	"0C",		0   	}
+{ LxDC,		1,		"FF",		8		}
 };
 
+public int searchSize(int token_id){
+    int i;
 
+    for(i = 0; i < LxRsvNum; i = i+1){
+        if(token_id == operationtbl[i].operation_id){
+            return operationtbl[i].size;
+        }
+    }
 
+    return -1;
+}

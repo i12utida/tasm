@@ -1,5 +1,9 @@
 #ifndef LEXICAL_H
 
+// EOFの文字コードを設定
+#define EOF '\x7f'      //ASCII, UTF-8でDEL文字
+
+// 予約語のトークン番号
 #define LxNO        0       //NO
 #define LxLD        1       //LD
 #define LxST        2       //ST
@@ -42,26 +46,47 @@
 #define LxDS        34      //DS
 #define LxDC        35      //DC
 
-#define LxG0        36     //G0
-#define LxG1        37     //G1
-#define LxG2        38     //G2
-#define LxSP        39     //SP
+#define LxRsvNum      36      //予約語の数
 
-#define RsvNum      40      //予約語の数
+//レジスタのトークン番号
+#define LxG0        40     //G0
+#define LxG1        41     //G1
+#define LxG2        42     //G2
+#define LxSP        43     //SP
 
-#define LABEL       100     //LABEL判定
-#define SPACE       101     //SPACE判定
-#define SHARP       102     //#判定
-#define CORON       103     //,判定
+//トークンタイプを表すトークン番号
+#define LxLABEL       100     //ラベル
+#define LxSTRING      101     //文字列
+#define LxSPACE       102     //SPACE
+#define LxSHARP       103     //イミディエイト
+#define LxCOMMA       104     // , カンマ
+#define LxSCORON      105     // ; セミコロン
+#define LxVALUE       106     //10進文字列、16進文字列、文字定数
+#define LxPLUS        107     // '+'
+#define LxMINUS       108     // '-'
+#define LxMULTIPUL    109     // '*'
+#define LxDIVIDE      110     // '/'
+#define LxENTER       111     //改行
+#define LxEOF         112     //End Of File
+#define LxEOL         113
+#define LxLBR         114     // '(' 左括弧
+#define LxRBR         115     // ')' 右括弧
 
-public char ch;
-public char nextch;
-public int token;
-public char[] str;
+#define LENGTH 80
+
+// 予約語の一覧表
+struct RsvWord {
+  char[] token;                         /* つづり */
+  int  rsvword_id;                    /* トークン値の組 */
+};
 
 public char getCh();
 public int getDigit();
-public int getTok();
+public int getToken();
+public void skipToNewLineOrEOF();
+public boolean getLabel();
+public char[] getLxStr();
 
-public void Initialization();
+public void initLexical();
+public void setLxFp(FILE file);
 #endif      /* LEXICAL_H */

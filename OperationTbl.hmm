@@ -10,4 +10,5 @@ struct OperationTbl {
 
 public OperationTbl[] operationtbl;
 
+public int searchSize(int token_id);
 #endif   /* OPERATIONTBL_H */

@@ -1,14 +1,11 @@
 #ifndef SYMTBL_H
 
 #define DATA 50   /* 登録できるラベルは最大で50個 */
-#define LENGTH 12   /* ラベルの長さの制限を12文字とする */
+#define LABEL_LENGTH 12   /* ラベルの長さの制限を12文字とする */
+#define LENGTH 80   /* 一行の長さ */
 
-public int[] dc;
-public int[] ds;
-
-public void clearSymTbl();
-public void asignLabel();
-public void asignDS();
-public void getLabelAddress();
-public void increaseSymbleAddress(int i);
+public void initSymTbl();
+public void asignLabel(int pca, char[] str);
+public int getLabelAddress(char[] str);
+public void changeSymAdr(int pca, int address, char[] str);
 #endif      /* SYMTBL */
