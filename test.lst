@@ -1,0 +1,22 @@
+ADR  CODE          Label   Instruction             Comment              Page(1)
+
+00  13 00                  LD      G0,#0          
+02  17 00                  LD      G1,#0          
+04  57 05          LOOP    CMP     G1,#5          
+06  A4 14                  JZ      FIN            
+08  19 17                  LD      G2,A,G1        
+0A  6B 01                  AND     G2,#01H        
+0C  A4 10                  JZ      EVEN           
+0E  33 01                  ADD     G0,#1          
+10  37 01          EVEN    ADD     G1,#1          
+12  A0 04                  JMP     LOOP           
+14  20 1C          FIN     ST      G0,B           
+16  FF                     HALT                   
+17  01             A       DC      1              
+18  02                     DC      2              
+19  03                     DC      3              
+1A  04                     DC      4              
+1B  05                     DC      5              
+1C  00 00 00 00    B       DS      10             
+20  00 00 00 00 
+24  00 00 

@@ -1,6 +1,6 @@
- ld g0,#0
+	 ld g0,#0
  ld g1,#0
-loop cmp g1,#5
+loop cmp G1,#5
  jz fin
  ld g2,a,g1
  and g2,#01h

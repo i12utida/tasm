@@ -46,33 +46,36 @@
 #define LxDS        34      //DS
 #define LxDC        35      //DC
 
-#define LxRsvNum      36      //予約語の数
 
 //レジスタのトークン番号
-#define LxG0        40     //G0
-#define LxG1        41     //G1
-#define LxG2        42     //G2
-#define LxSP        43     //SP
+#define LxG0        36      //G0
+#define LxG1        37     //G1
+#define LxG2        38     //G2
+#define LxSP        39     //SP
+
 
 //トークンタイプを表すトークン番号
-#define LxLABEL       100     //ラベル
-#define LxSTRING      101     //文字列
-#define LxSPACE       102     //SPACE
-#define LxSHARP       103     //イミディエイト
-#define LxCOMMA       104     // , カンマ
-#define LxSCORON      105     // ; セミコロン
-#define LxVALUE       106     //10進文字列、16進文字列、文字定数
-#define LxPLUS        107     // '+'
-#define LxMINUS       108     // '-'
-#define LxMULTIPUL    109     // '*'
-#define LxDIVIDE      110     // '/'
-#define LxENTER       111     //改行
-#define LxEOF         112     //End Of File
-#define LxEOL         113
-#define LxLBR         114     // '(' 左括弧
-#define LxRBR         115     // ')' 右括弧
+#define LxSPC       100     // Space
+#define LxEOF       101     // End of File
+#define LxEOL       102     // End of Line
+#define LxCOM       103     // Comment
+#define LxNUM       104     // Number
+#define LxSTR       105     // String
+#define LxNAM       106     // Name
+#define LxLBR       107     // Left Bracket
+#define LxRBR       108     // Right Bracket
+#define LxCMM       109     // Comma
+#define LxPLS       110     // Plus
+#define LxMNS       111     // Minus
+#define LxMUL       112     // Multipul
+#define LxDIV       113     // Divide
+#define LxIMM       114     // Immidiate
+#define LxRSV       115     // Reserved Word
+#define LxERR       116     // Error
 
-#define LENGTH 80
+#define LENGTH 80           // Line Length
+#define LxRSV_NUM   40      // Number of Reserved Words
+#define LxREG_NUM   4       // Number of Registers
 
 // 予約語の一覧表
 struct RsvWord {

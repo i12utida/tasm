@@ -14,6 +14,7 @@
 #include <stdio.hmm>
 #include <ctype.hmm>
 
+#include "Assemble.hmm"
 #include "Lexical.hmm"
 #include "Error.hmm"
 
@@ -23,6 +24,7 @@ FILE fp;            /* Lexicalのファイルポインタ */
 char ch;            /* 現在の文字 */
 char nextch;        /* 1つ先の文字 */
 int token_id;       /* トークン番号 */
+boolean label;
 char[] str = array(LENGTH);          /* つづりの記憶領域を生成 */
 
 RsvWord[] rsvword = {
@@ -72,8 +74,8 @@ RsvWord[] rsvword = {
 /*********** 予約語トークン番号を探す関数 **********/
 int searchRsvWord(char[] word){
     int i;
-
-    for(i = 0; i < LxRsvNum; i = i+1){
+    
+    for(i = 0; i < LxRSV_NUM; i = i+1){
         if(strCmp(word,rsvword[i].token) == 0){
             token_id = rsvword[i].rsvword_id;
             return token_id;
@@ -86,10 +88,10 @@ int searchRsvWord(char[] word){
 /******** 次の文字を取ってきて行を1行進める関数 *********/
 public char getCh() {
     ch = nextch;                                /* 次の文字を現在の文字にする */
-    if(feof(fp)) {                        /* 次の入力がEOFなら */
+    if(feof(sourcefp)) {                        /* 次の入力がEOFなら */
         nextch = EOF;                           /* nextchにEOFの目印を */
     } else {                                    /* そうでなければ */
-        nextch = toUpper(fgetc(fp));      /* nextchに次の文字を読み込む */
+        nextch = toUpper(fgetc(sourcefp));      /* nextchに次の文字を読み込む */
 
         if(nextch==EOF)                         /* nextchにEOFが読み込まれていたら */
             error("input has '\x7f'");          /* 入力にEOFをがあるエラーを出力 */
@@ -98,9 +100,9 @@ public char getCh() {
     return ch;                                  /* 現在の文字を返す */
 }
 
-/********** 改行が来るまで空白を飛ばす関数 *************/
+/********** 改行か文字がくるまで空白を読み飛ばす関数 *************/
 void skipSpaces() {
-    while(ch != '\n' && isSpace(ch)){               /* 改行以外かつ空白なら */
+    while(nextch != '\n' && isSpace(nextch)){               /* 改行以外かつ空白なら */
         getCh();                                    /* 1文字読み飛ばす */
     }
 }
@@ -123,8 +125,8 @@ void skipAllSpaces() {
         skipSpaces();                               /* 改行以外の空白を飛ばす */
         if(ch == '/' && nextch == '/') {            /* "//"ならコメント開始 */
             skipCppCom();                           /* コメントを読み飛ばす */
-        } else if(ch == '\n') {
-            getCh();
+        } else if(nextch == '\n') {
+            break;
         } else{ 
             break;                                  /* "//",'\n'以外なら抜け出す */
         }
@@ -195,12 +197,13 @@ public int getDigit() {
 void getString(){
     str[0] = ch;            /* strに頭文字を記憶*/
     int i;                  /* strの添字用変数を宣言 */
-    getCh();                /* 次の文字をchに取ってくる */
 
-    for(i = 1; isAlnum(ch) == true; i = i+1){   /* chが英字もしくは数字なら */
+    for(i = 1; isAlnum(nextch) == true; i = i+1){   /* chが英字もしくは数字なら */
+        getCh();            /* 次の文字を取ってくる */
         str[i] = ch;        /* chをstrに記憶 */
-        getCh();            /* 次の文字を取ってきておく */
     }
+
+    str[i] = '\0';
 
 }
 
@@ -210,10 +213,10 @@ int getWord(){
     
     token_id = searchRsvWord(str);      /* トークンが予約語と一致するか確認 */
     
-    if(token_id == -1){                 /* 予約語と一致しなければ */
-        return LxLABEL;
-    } else{
-        return LxSTRING;
+    if(0 <= token_id && token_id < LxRSV_NUM){    /* token_idが予約語なら */
+        return token_id;                                 /* token_idを返す */
+    } else {                                             /* token_idが予約語以外なら */
+        return LxNAM;                                    /* ラベルであることを返す */
     }
     
     return token_id;
@@ -221,14 +224,19 @@ int getWord(){
 
 /********* ラベルの有無を返す **********/
 public boolean getLabel(){
+    printf("start getLabel()\n");
     if( ch == '\0'){    /* まだ一度も文字を取ってきていない場合は */
         getCh();        /* chにはnextchの改行をnextchには文字の先頭を取ってくる */
     }
 
     if(ch == '\n' && nextch == ' '){        /* 行頭が空白なら */
-        return false;                       /* ラベルなしなのでfalse */
+        printf("label = false\n");
+        label = false;
+        return label;                       /* ラベルなしなのでfalse */
     } else if(ch == '\n' && isAlpha(nextch)){  /* 行頭がアルファベットなら */
-        return true;                        /* ラベルがあるのでtrue */
+        printf("label = true\n");
+        label = true;
+        return label;                        /* ラベルがあるのでtrue */
     } else{                                 /* それ以外なら */
         ;                                   /* エラー */
     }
@@ -238,48 +246,71 @@ public boolean getLabel(){
 
 /********* 次のトークンを読んでトークン番号を返す関数 **********/
 public int getToken(){
+    printf("start getToken()\n");
     token_id = -1;          /* トークンを初期化 */
 
     if(ch == '\0'){         /* まだ一度も文字を取ってきていない場合は */
         getCh();        /* ch にはnextchの改行をnextchに文字の行頭を取ってくる */
     }
 
-    skipAllSpaces();        /* 空白を飛ばしておく */
+    getCh();
 
-    if(ch == '"'){                  /* 文字列であるなら */
-        token_id = LxSTRING;          /* トークン番号(文字列)を設定 */
+    if(ch == ' '){
+        skipSpaces();
+        return  LxSPC;
+    } else if(ch == '"'){                  /* 文字列であるなら */
+    printf("STRING\n");
+        token_id = LxSTR;          /* トークン番号(文字列)を設定 */
     } else if(ch == '\''){           /* 文字定数であるなら */
-        token_id = LxVALUE;           /* トークン番号(数値)を設定 */
+    printf("NUMBER\n");
+        token_id = LxNUM;           /* トークン番号(数値)を設定 */
     } else if(ch == '\n'){          /* 改行であるなら */
+    printf("EOL\n");
         token_id = LxEOL;           /* トークン番号(改行)を返す */
+        return LxEOL;               /* 改行だけはスペースを飛ばさないまま返す */
     } else if(ch == EOF){           /* EOFなら */
+    printf("EOF\n");
         token_id = LxEOF;               /* トークン番号(EOF)を設定 */
     } else if(ch == '('){           /* 左括弧なら */
+    printf("LBR\n");
         token_id = LxLBR;
     } else if(ch == ')'){           /* 右括弧なら */
+    printf("RBR\n");
         token_id = LxRBR;
     } else if(ch == ','){           /* カンマなら */
-        token_id = LxCOMMA;         /* トークン番号(カンマ)を設定 */
+    printf("COMMA\n");
+        token_id = LxCMM;         /* トークン番号(カンマ)を設定 */
     } else if(ch == ';'){           /* セミコロンなら */
-        token_id = LxSCORON;        /* トークン番号(セミコロン)を設定 */
+    printf("COMMENT\n");
+        token_id = LxCOM;        /* トークン番号(セミコロン)を設定 */
     } else if(ch == '+'){           /* プラスなら */
-        token_id = LxPLUS;          /* トークン番号(プラス)を設定 */
+    printf("PLUS\n");
+        token_id = LxPLS;          /* トークン番号(プラス)を設定 */
     } else if(ch == '-'){           /* マイナスなら */
-        token_id = LxMINUS;         /* トークン番号(マイナス)を設定 */
+    printf("MINUS\n");
+        token_id = LxMNS;         /* トークン番号(マイナス)を設定 */
     } else if(ch == '*'){           /* 乗算なら */
-        token_id = LxMULTIPUL;      /* トークン番号(乗算)を設定 */
+    printf("MULTIPUL\n");
+        token_id = LxMUL;      /* トークン番号(乗算)を設定 */
     } else if(ch == '/'){           /* 除算なら */
-        token_id = LxDIVIDE;        /* トークン番号(除算)を設定 */
+    printf("DIVIDE\n");
+        token_id = LxDIV;        /* トークン番号(除算)を設定 */
     } else if(ch == '#'){           /* イミディエイトなら */
-        token_id = LxSHARP;         /* トークン番号(イミディエイト)を設定 */
+    printf("IMM\n");
+        token_id = LxIMM;         /* トークン番号(イミディエイト)を設定 */
     } else if(isAlpha(ch)){         /* chがアルファベットなら */
         token_id = getWord();       /* トークン番号(予約語かラベル)を返す */
-    } else if(isDigit(ch)){             /* 数値であるなら */
+    } else if(isDigit(ch)){         /* 数値であるなら */
+    printf("NUMBER\n");
         getString();
-        token_id = LxVALUE;         /* トークン番号(数値)を設定 */
+        token_id = LxNUM;         /* トークン番号(数値)を設定 */
     } else{                         /* エラーなら */
+        printf("error\n");          /* エラー */
+        token_id = -1;              // とりあえず終了するために代用
     }
-
+    
+    printf("token_id = %d, str = %s\n",token_id,str);
+    skipSpaces();
     return token_id;                /* トークン番号を返す */
 }
 

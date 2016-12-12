@@ -14,8 +14,8 @@ CPP=cc -E ${CPPFLAGS} -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - <
 all: Tasm7 Tasm7.v Tasm7.s Tasm7.exe
 
 # MacOS, UNIX の実行形式を作る
-Tasm7: Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c
-	cc -o Tasm7 ${CFLAGS} Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c ${LIBDIR}/wrapper.c
+Tasm7: Tasm7.c Test.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c
+	cc -o Tasm7 ${CFLAGS} Tasm7.c Test.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c ${LIBDIR}/wrapper.c
 
 # TacOS の実行形式を作る
 Tasm7.exe: Tasm7.s
@@ -26,6 +26,9 @@ Tasm7.exe: Tasm7.s
 # C言語に変換する
 Tasm7.c: Tasm7.cmm
 	${CPP} Tasm7.cmm | c-c-- > Tasm7.c
+
+Error.c: Test.cmm
+	${CPP} Test.cmm | c-c-- > Test.c
 
 Error.c: Error.cmm
 	${CPP} Error.cmm | c-c-- > Error.c

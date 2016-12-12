@@ -1,5 +1,6 @@
 #include <stdio.hmm>
 #include <stdlib.hmm>
+#include <ctype.hmm>
 
 #include "Pass1.hmm"
 #include "Lexical.hmm"
@@ -21,23 +22,43 @@ public void initPass1(){
     eofflag = false;
     pca = 0;
     str = null;
-    token_id = LxEOF;
+    token_id = -1;
     style = -1;
     address = 0;
     label = false;
+    initLexical();
+    initSymTbl();
 }
 
 public void pass1(FILE sourcefp){
     setLxFp(sourcefp);
     printf("pass1start\n");
-        if(getLabel()){             /* ラベルなら */
-            getToken();             /* ラベルの綴りをLexicalのstrに代入 */
-            str = getLxStr();      /* strを取ってくる */
-            asignLabel(pca,str);    /* ラベルを登録 */
+    token_id = getToken();                  /* 最初のトークンを取ってくる */
+    if(token_id != LxSPC){                  /* ファイルの最初がスペース以外なら */
+        str = getLxStr();                   /* Lexicalのstrを取ってくる */
+        if(isAlpha(str[0])){                 /* ラベルに適した文字なら */
+            asignLabel(pca,str);          /* ラベルを登録 */
+        } else{                             /* ラベルにできない文字なら */
+            token_id = LxERR;               /* トークンをエラーにセット */
         }
-        
-        token_id = getToken();
+    }
 
+    while(token_id != LxEOF || token_id != LxERR){    /* ファイルの終わりまで */
+        if(token_id == LxEOL){              /* 改行なら */
+            token_id = getToken();          /* 次のトークンを取ってくる */
+            if(token_id != LxSPC){          /* 行の先頭が空白以外なら */
+                str = getLxStr();           /* Lexicalのstrを取ってくる */
+                if(isAlpha(str[0])){         /* ラベルに適した文字なら */
+                    asignLabel(pca,str);    /* ラベルを登録 */
+                } else {                    /* ラベルに適さない文字なら */
+                    token_id = LxERR;       /* トークンにエラーをセット */
+                    break;                  /* ファイル読み込みから抜ける */
+                }
+            }
+        }
+        token_id = getToken();              /* 次のトークンを取ってくる */
+
+/*
         if(token_id == LxEQU){
             address = pca;
             getToken();
@@ -46,6 +67,7 @@ public void pass1(FILE sourcefp){
             changeSymAdr(pca,address,str);
             pca = address;
         }
+*/
 
         if(token_id == LxORG){
             printf("ORG\n");
@@ -63,6 +85,15 @@ public void pass1(FILE sourcefp){
             eofflag = true;
         }
 
-        pca = pca + searchSize(token_id);
-        skipToNewLineOrEOF();
+        if(0 <= token_id  && token_id < LxRSV_NUM - LxREG_NUM){
+            printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
+            pca = pca + searchSize(token_id);
+        }
+
+        printf("token_id = %d\n",token_id);
+    }
+
+    printf("pass1() End\n");
+
+    printSymTbl();
 }

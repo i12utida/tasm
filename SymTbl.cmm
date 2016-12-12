@@ -1,5 +1,6 @@
 #include <stdio.hmm>
 #include <stdlib.hmm>
+#include <string.hmm>
 
 #include "SymTbl.hmm"
 
@@ -15,6 +16,12 @@ public void initSymTbl(){
     label_cnt = 0;
 }
 
+public void printSymTbl(){
+    int i;
+    for(i = 0; i < label_cnt; i = i+1){
+        printf(" label_address = %d, label_name = %s\n",label_address[i],label[i]);
+    }
+}
 /*
  * ラベルを登録する
  */
@@ -22,9 +29,9 @@ public void asignLabel(int pca, char[] str){
     int i;
     for(i=0;i<LENGTH;i=i+1){                    /* ラベルの最大長まで */
         label[label_cnt][i]=str[i];            /* ラベルの文字を登録 */
-        if(str[i] == '\0'){
-            label_address[label_cnt] = pca;     /* ラベルのアドレス登録 */
-            break;
+        if(str[i] == '\0'){                     /* ラベルの文字の登録を終えたら */
+            label_address[label_cnt] = pca;     /* ラベルのアドレスを登録 */
+            break;                              /* ラベル登録終了 */
         } 
     }
     printf("Laddress=%d\n",label_address[label_cnt]);
@@ -33,14 +40,22 @@ public void asignLabel(int pca, char[] str){
 }
 
 /******** ラベルのアドレスを返す関数 *********/
-public int getLabelAddress(char[] str){
-    int address = 0;
+public int getLabelAddr(char[] str){
+    int address = -1;
+
+    int i;
+    for(i = 0; i < label_cnt; i = i+1){
+        if(strCmp(str,label[i]) == 0){
+            address = label_address[i];
+        }
+    }
+
     return address;
 }
 /*********************************************/
 
 /******** ラベルのアドレスを変更する関数 **********/
-public void changeSymAdr(int pca, int address, char[] str){
+public void changeSymAddr(int pca, int address, char[] str){
 
 }
 /**************************************************/

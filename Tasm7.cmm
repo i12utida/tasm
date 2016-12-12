@@ -7,6 +7,7 @@
 #include "Error.hmm"
 #include "Pass1.hmm"
 #include "Pass2.hmm"
+#include "Test.hmm"
 
 // 大域変数
 public FILE sourcefp;
@@ -25,7 +26,6 @@ void usage(char[] name) {
 
 // main 関数
 public int main(int argc, char[][] argv){
-    printf("と\n");
     //使い方表示
     int i = 1;
 
@@ -65,22 +65,21 @@ public int main(int argc, char[][] argv){
 
     // 全ての初期化
     initPass1();
-   
-
-    // Pass1の実行
+    
+    //Pass1の実行
     pass1(sourcefp);
     fclose(sourcefp);
 
-/* とりあえずpass1まで
-
+/********* Pass2を停止 ***********/
+/*
     // Pass2の実行
     sourcefp = fopen(argv[1],"r");
     initPass2();
     pass2();
-
 */
+/************************************/
     // ファイルをクローズ
-    fclose(sourcefp);
+    //fclose(sourcefp);
     fclose(listfp);
     fclose(binaryfp);
     return 0 ;

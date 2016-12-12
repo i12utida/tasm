@@ -14,19 +14,7 @@ _binaryfp
 	WS	1
 _listfp
 	WS	1
-_ch
-	WS	1
-_nextch
-	WS	1
-_token
-	WS	1
-_str
-	WS	1
 _pass1flag
-	WS	1
-_dc
-	WS	1
-_ds
 	WS	1
 _pass2flag
 	WS	1
@@ -84,43 +72,35 @@ _pass2flag
 	POP
 	RET
 .L7
-	STRING	"と\n"
-.L8
 	STRING	"引数が足りていません"
-.L9
+.L8
 	STRING	"-h"
+.L9
+	STRING	"r"
 .L10
-	STRING	"r"
+	STRING	"list.lst"
 .L11
-	STRING	"list.lst"
+	STRING	"w"
 .L12
-	STRING	"w"
+	STRING	"binary.bin"
 .L13
-	STRING	"binary.bin"
-.L14
 	STRING	"w"
-.L15
+.L14
 	STRING	"list.lst"
-.L16
+.L15
 	STRING	"binary.bin"
-.L17
+.L16
 	STRING	"引数が多すぎます"
-.L18
-	STRING	"r"
 _main
 	ENTRY	1
-	LDC	.L7
-	ARG
-	CALLF	1,_printf
-	POP
 	LDC	1
 	STL	1
 	POP
 	LDP	1
 	LDL	1
 	EQ
-	JF	.L19
-	LDC	.L8
+	JF	.L17
+	LDC	.L7
 	ARG
 	CALLP	1,_error
 	LDC	65524
@@ -128,13 +108,13 @@ _main
 	CALLP	1,_exit
 	LDC	65535
 	MREG
-	JMP	.L20
-.L19
+	JMP	.L18
+.L17
 	LDP	1
 	LDL	1
 	GT
-	JF	.L21
-	LDC	.L9
+	JF	.L19
+	LDC	.L8
 	ARG
 	LDP	2
 	LDL	1
@@ -143,7 +123,7 @@ _main
 	CALLF	2,_strCmp
 	LDC	0
 	EQ
-	JF	.L21
+	JF	.L19
 	LDP	2
 	LDC	0
 	LDW
@@ -151,15 +131,15 @@ _main
 	CALLP	1,.usage
 	LDC	0
 	MREG
-	JMP	.L20
-.L21
+	JMP	.L18
+.L19
 	LDL	1
 	LDC	1
 	ADD
 	LDP	1
 	EQ
-	JF	.L22
-	LDC	.L10
+	JF	.L20
+	LDC	.L9
 	ARG
 	LDP	2
 	LDL	1
@@ -168,16 +148,16 @@ _main
 	CALLF	2,_fopen
 	STG	_sourcefp
 	POP
-	LDC	.L12
-	ARG
 	LDC	.L11
+	ARG
+	LDC	.L10
 	ARG
 	CALLF	2,_fopen
 	STG	_listfp
 	POP
-	LDC	.L14
-	ARG
 	LDC	.L13
+	ARG
+	LDC	.L12
 	ARG
 	CALLF	2,_fopen
 	STG	_binaryfp
@@ -185,7 +165,7 @@ _main
 	LDG	_sourcefp
 	LDC	0
 	EQ
-	JF	.L23
+	JF	.L21
 	LDP	2
 	LDL	1
 	LDW
@@ -193,73 +173,46 @@ _main
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L20
-.L23
+	JMP	.L18
+.L21
 	LDG	_listfp
 	LDC	0
 	EQ
-	JF	.L24
+	JF	.L22
+	LDC	.L14
+	ARG
+	CALLP	1,_perror
+	LDC	65535
+	MREG
+	JMP	.L18
+.L22
+	LDG	_binaryfp
+	LDC	0
+	EQ
+	JF	.L23
 	LDC	.L15
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L20
-.L24
-	LDG	_binaryfp
-	LDC	0
-	EQ
-	JF	.L25
-	LDC	.L16
-	ARG
-	CALLP	1,_perror
-	LDC	65535
-	MREG
-	JMP	.L20
-.L25
-.L22
+	JMP	.L18
+.L23
+.L20
 	LDP	1
 	LDC	2
 	GT
-	JF	.L26
-	LDC	.L17
+	JF	.L24
+	LDC	.L16
 	ARG
 	CALLP	1,_error
 	LDC	65535
 	MREG
-	JMP	.L20
-.L26
-	LDC	0
-	STG	_token
-	POP
-	CALLP	0,_Initialization
-.L27
-	CALLF	0,_pass1
-	JF	.L28
-	JMP	.L27
-.L28
-	LDC	1
-	STG	_pass1flag
-	POP
+	JMP	.L18
+.L24
+	CALLP	0,_initPass1
 	LDG	_sourcefp
 	ARG
-	CALLF	1,_fclose
-	POP
-	CALLP	0,_Initialization
-	LDC	.L18
-	ARG
-	LDP	2
-	LDC	1
-	LDW
-	ARG
-	CALLF	2,_fopen
-	STG	_sourcefp
-	POP
-.L29
-	CALLF	0,_pass2
-	JF	.L30
-	JMP	.L29
-.L30
+	CALLP	1,_pass1
 	LDG	_sourcefp
 	ARG
 	CALLF	1,_fclose
@@ -272,10 +225,7 @@ _main
 	ARG
 	CALLF	1,_fclose
 	POP
-	LDG	_ds
-	ARG
-	CALLP	1,_free
 	LDC	0
 	MREG
-.L20
+.L18
 	RET

@@ -13,15 +13,15 @@ char[] eq_str = array(LENGTH);
 int expression(){
     int v = term();
     
-    while(token==PLS || token==MNS){
-	if(token==PLS){           // 加算
+    while(token_id==PLS || token_id==MNS){
+	if(token_id==PLS){           // 加算
 	    opr += "+";           // アセンブルリスト用
-	    token = getToken();
+	    token_id = getToken();
 	    v += term();
 	}
 	else{                     // 減算
 	    opr += "-";           // アセンブルリスト用
-	    token = getToken();
+	    token_id = getToken();
 	    v -= term();
 	}
     }
@@ -33,61 +33,63 @@ int expression(){
  */
 int term(){
     int v = factor();
-    while(token==MUL || token==DIV){
-	if(token==MUL){           // 乗算
+    while(token_id==MUL || token_id==DIV){
+	if(token_id==MUL){           // 乗算
 	    opr += "*";           // アセンブルリスト用
-	    token = getToken();
+	    token_id = getToken();
 	    v *= factor();
 	}
 	else{                     // 除算
 	    opr += "/";           // アセンブルリスト用
-	    token = getToken();
+	    token_id = getToken();
 	    v /= factor();
 	}
     }
     return v;
 }
 
+/*
+ * <因子１> ::= <因子> | + <因子> | - <因子>
+ * <因子> ::= <数値> | <ラベル> | ( <式> )
+ */
 int factor(){
     int v = 1;
     
     /* 因子１ */
     if(token_id==PLUS){               // 正の数
-	opr += "+";               // アセンブルリスト用
+	setOpr("+");               // アセンブルリスト用
 	token_id = getToken();
     }
     else if(token_id==MINUS){          // 負の数
 	v = -1;
-	opr += "-";               // アセンブルリスト用
+	oprOpr("-");               // アセンブルリスト用
 	token_id = getToken();
     }
 
     /* 因子 */
-    if(token_id==INTEGER){           // 数値（10進数, 16進数, 文字定数）
-	v *= getValue();          // token の数値
-	opr += getSrc();
+    if(token_id==INTEGER){              // 数値（10進数, 16進数, 文字定数）
+	v = getDigit();                     // トークンの数値を取ってくる
+	setOpr(getLxStr());                 // オペランド配列に登録
     }
-    else if(token_id==NAME){         // ラベル
-	var i = getAddr(getSrc()); // ラベルのアドレス
-	opr += getSrc();
-	if(i==null){              // ラベルが登録されてない
-	    setErr(UND_Idt);
-	}
-	else{
-	    v *= i;               // ラベルのアドレス
-	}
-    }
-    else if(token_id==LBR){          // ( 式 )
-	opr += "(";               // アセンブルリスト用
-	token_id = getToken();
-	v *= expression();        // 式を計算
-	if(token_id!=RBR){
-	    setErr(UNB_Br);
-	}
-	opr += ")";               // アセンブルリスト用
+    else if(token_id==NAME){            // ラベル
+	    int i = getAddr(getLxStr());    // ラベルのアドレスを取ってくる
+	    setOpr(getLxStr());             // アセンブルリストに登録
+	    if(i == -1){                    // ラベルが登録されてない
+	        ;                           // ラベルがないというエラー処理
+	    } else{
+	        v = v + i;                  // ラベルのアドレスを足す
+	    }
+    } else if(token_id==LBR){           // 左括弧だったら
+	    setOpr('(');                    // アセンブルリスト用
+	    token_id = getToken();
+	    v = expression();               // 式を計算
+	    if(token_id!=RBR){              // 右括弧以外なら
+            ;                           // エラー処理
+	    }
+	    setOpr(")");                    // アセンブルリスト用
     }
     else{
-	setErr(BAD_Exp);
+        ;                    // 式が不正であるエラー処理
     }
 
     token_id = getToken();
