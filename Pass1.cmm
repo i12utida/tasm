@@ -7,6 +7,7 @@
 #include "SymTbl.hmm"
 #include "OperationTbl.hmm"
 #include "Util.hmm"
+#include "Error.hmm"
 
 // static変数
 boolean eofflag = false;    /* EOFフラグ */
@@ -42,55 +43,46 @@ public void pass1(FILE sourcefp){
             token_id = LxERR;               /* トークンをエラーにセット */
         }
     }
-
-    while(token_id != LxEOF || token_id != LxERR){    /* ファイルの終わりまで */
+    
+    printf("before LxEOL\n");
+    ch();
+    while(token_id != LxEOF && token_id != LxERR){    /* ファイルの終わりまで */
         if(token_id == LxEOL){              /* 改行なら */
             token_id = getToken();          /* 次のトークンを取ってくる */
-            if(token_id != LxSPC){          /* 行の先頭が空白以外なら */
+            if(token_id == LxNAM){          /* 行の先頭が空白以外なら */
                 str = getLxStr();           /* Lexicalのstrを取ってくる */
                 if(isAlpha(str[0])){         /* ラベルに適した文字なら */
                     asignLabel(pca,str);    /* ラベルを登録 */
-                } else {                    /* ラベルに適さない文字なら */
-                    token_id = LxERR;       /* トークンにエラーをセット */
-                    break;                  /* ファイル読み込みから抜ける */
                 }
             }
         }
+        printf("kkk\n");
         token_id = getToken();              /* 次のトークンを取ってくる */
+        printf("%d\n",token_id);
+        printf("jjjj\n");
 
-/*
-        if(token_id == LxEQU){
-            address = pca;
-            getToken();
-            str = getLxStr();
-            //pca = eqAnalyzer(str);
-            changeSymAdr(pca,address,str);
-            pca = address;
-        }
-*/
-
-        if(token_id == LxORG){
+        if(token_id == LxEQU){              /* EQU命令なら */
+            getToken();                     /* <式>の部分を取ってくる */
+            address = eqAnalyzer();         /* <式>の結果を代入 */
+            printf("after eqAnalyzer token_id = *%d*\n",token_id);
+            changeSymAddr(pca,address);     /* ラベルのアドレスを変更 */
+            token_id = getTokenID();        /* 式の中でtoken_idが変わったのでsetする*/
+            printf("setTokenID *%d*\n",token_id);
+        } else if(token_id == LxORG){
             printf("ORG\n");
-        }
-        
-        if(token_id == LxDC){
+        } else if(token_id == LxDC){
             printf("DC\n");
-        }
-
-        if(token_id == LxDS){
+        } else if(token_id == LxDS){
             printf("DS\n");
-        }
-
-        if(token_id == LxEOF){
-            eofflag = true;
-        }
-
-        if(0 <= token_id  && token_id < LxRSV_NUM - LxREG_NUM){
+        } else if(token_id == LxEOF){
+            printf("End of File\n");
+        } else if(0 <= token_id  && token_id < LxRSV_NUM){
             printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
             pca = pca + searchSize(token_id);
+        } else{
+            error("bad instruction!!");
         }
 
-        printf("token_id = %d\n",token_id);
     }
 
     printf("pass1() End\n");

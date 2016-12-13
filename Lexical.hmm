@@ -74,7 +74,7 @@
 #define LxERR       116     // Error
 
 #define LENGTH 80           // Line Length
-#define LxRSV_NUM   40      // Number of Reserved Words
+#define LxRSV_NUM   36      // Number of Reserved Words
 #define LxREG_NUM   4       // Number of Registers
 
 // 予約語の一覧表
@@ -86,10 +86,16 @@ struct RsvWord {
 public char getCh();
 public int getDigit();
 public int getToken();
+public int getTokenID();
 public void skipToNewLineOrEOF();
 public boolean getLabel();
 public char[] getLxStr();
 
 public void initLexical();
 public void setLxFp(FILE file);
+
+
+/* テスト用 */
+public char gch();
+public char gnextch();
 #endif      /* LEXICAL_H */

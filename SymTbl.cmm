@@ -34,9 +34,8 @@ public void asignLabel(int pca, char[] str){
             break;                              /* ラベル登録終了 */
         } 
     }
-    printf("Laddress=%d\n",label_address[label_cnt]);
+    printf("Label registrated label_name=*%s*, label_address=*%d*\n",label[label_cnt],label_address[label_cnt]);
     label_cnt = label_cnt+1;                    /* ラベルの個数を増やす */
-    printf("label_cnt=%d\n",label_cnt);
 }
 
 /******** ラベルのアドレスを返す関数 *********/
@@ -55,7 +54,15 @@ public int getLabelAddr(char[] str){
 /*********************************************/
 
 /******** ラベルのアドレスを変更する関数 **********/
-public void changeSymAddr(int pca, int address, char[] str){
-
+public void changeSymAddr(int pca, int address){
+    printf("pca = *%d*, address = *%d*\n",pca,address);
+    int i;
+    for(i=0;i<=label_cnt;i=i+1){                 /* 登録されているラベルの個数まで */
+        if(label_address[i] == pca){            /* ラベルのアドレスを検索 */
+            label_address[i] = address;         /* ラベルのアドレスを変更 */
+    printf("Label address changed label_name=*%s*, label_address=*%d*\n",label[i],label_address[i]);
+            break;
+        }
+    }
 }
 /**************************************************/

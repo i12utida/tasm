@@ -2,50 +2,18 @@
 #include <stdlib.hmm>
 #include <string.hmm>
 
-include "Util.hmm"
-include "Lexical.hmm"
+#include "Util.hmm"
+#include "Lexical.hmm"
+#include "SymTbl.hmm"
 
 char[] eq_str = array(LENGTH);
+int token_id;
+int factor();
+int term();
+int expression();
 
-/*
- * <式> ::= <項> + <式> | <項> - <式> | <項>
- */
-int expression(){
-    int v = term();
-    
-    while(token_id==PLS || token_id==MNS){
-	if(token_id==PLS){           // 加算
-	    opr += "+";           // アセンブルリスト用
-	    token_id = getToken();
-	    v += term();
-	}
-	else{                     // 減算
-	    opr += "-";           // アセンブルリスト用
-	    token_id = getToken();
-	    v -= term();
-	}
-    }
-    return v;
-}
-
-/*
- * <項> ::= <因子１> * <項> | <因子１> / <項> | <因子１>
- */
-int term(){
-    int v = factor();
-    while(token_id==MUL || token_id==DIV){
-	if(token_id==MUL){           // 乗算
-	    opr += "*";           // アセンブルリスト用
-	    token_id = getToken();
-	    v *= factor();
-	}
-	else{                     // 除算
-	    opr += "/";           // アセンブルリスト用
-	    token_id = getToken();
-	    v /= factor();
-	}
-    }
-    return v;
+void setOpr(char[] str){
+    ;
 }
 
 /*
@@ -56,46 +24,88 @@ int factor(){
     int v = 1;
     
     /* 因子１ */
-    if(token_id==PLUS){               // 正の数
-	setOpr("+");               // アセンブルリスト用
-	token_id = getToken();
-    }
-    else if(token_id==MINUS){          // 負の数
-	v = -1;
-	oprOpr("-");               // アセンブルリスト用
-	token_id = getToken();
+    if(token_id==LxPLS){              // 正の数なら
+	    setOpr("+");                // アセンブルリスト用
+	    token_id = getToken();      // 次のトークンを取ってくる
+    } else if(token_id==LxMNS){       // 負の数
+	    v = -1;                     // 
+	    setOpr("-");                // アセンブルリスト用
+	    token_id = getToken();
     }
 
     /* 因子 */
-    if(token_id==INTEGER){              // 数値（10進数, 16進数, 文字定数）
-	v = getDigit();                     // トークンの数値を取ってくる
-	setOpr(getLxStr());                 // オペランド配列に登録
-    }
-    else if(token_id==NAME){            // ラベル
-	    int i = getAddr(getLxStr());    // ラベルのアドレスを取ってくる
-	    setOpr(getLxStr());             // アセンブルリストに登録
-	    if(i == -1){                    // ラベルが登録されてない
-	        ;                           // ラベルがないというエラー処理
+    if(token_id==LxNUM){                    // 数値（10進数, 16進数, 文字定数）
+	    v = getDigit();                     // トークンの数値を取ってくる
+	    setOpr(getLxStr());                 // オペランド配列に登録
+    } else if(token_id==LxNAM){             // ラベル
+	    int i = getLabelAddr(getLxStr());   // ラベルのアドレスを取ってくる
+	    setOpr(getLxStr());                 // アセンブルリストに登録
+	    if(i == -1){                        // ラベルが登録されてない
+            printf("can't find label\n");
+	        exit(1);                        // ラベルがないというエラー処理
 	    } else{
-	        v = v + i;                  // ラベルのアドレスを足す
+	        v = v + i;                      // ラベルのアドレスを足す
 	    }
-    } else if(token_id==LBR){           // 左括弧だったら
-	    setOpr('(');                    // アセンブルリスト用
+    } else if(token_id==LxLBR){             // 左括弧だったら
+	    setOpr("(");                        // アセンブルリスト用
 	    token_id = getToken();
-	    v = expression();               // 式を計算
-	    if(token_id!=RBR){              // 右括弧以外なら
-            ;                           // エラー処理
+	    v = expression();                   // 式を計算
+	    if(token_id!=LxRBR){                // 右括弧以外なら
+            printf("can't find )\n");
+            exit(1);                        // エラー処理
 	    }
-	    setOpr(")");                    // アセンブルリスト用
-    }
-    else{
-        ;                    // 式が不正であるエラー処理
+	    setOpr(")");                        // アセンブルリスト用
+    } else{
+        printf("bad expression\n");
+        exit(1);                            // 式が不正であるエラー処理
     }
 
-    token_id = getToken();
-    return v;
+    token_id = getToken();                  // 次のトークンを取ってきておく
+    return v;                               // 結果を返す
 }
 
+/*
+ * <項> ::= <因子１> * <項> | <因子１> / <項> | <因子１>
+ */
+int term(){
+    int v = factor();                           // <因子1>,<因子>の解析を呼び出す
+    while(token_id==LxMUL || token_id==LxDIV){      // 乗算,除算の間
+	    if(token_id==LxMUL){                      // 乗算なら
+	        setOpr("*");                        // アセンブルリスト用
+	        token_id = getToken();              // 次のトークンを取ってくる
+	        v = v * factor();                   // <因子1>,<因子>の解析結果との乗算
+	    }
+	    else{                                   // 除算なら
+	        setOpr("/");                        // アセンブルリスト用
+	        token_id = getToken();              // 次のトークンを取ってくる
+	        v = v / factor();                   // <因子1>,<因子>の解析結果と除算
+	    }
+    }
+    return v;                                   // 結果を返す
+}
+
+/*
+ * <式> ::= <項> + <式> | <項> - <式> | <項>
+ */
+int expression(){
+    int v = term();                         // <項>の解析を呼び出す
+    
+    while(token_id==LxPLS || token_id==LxMNS){  // 加算,減算の間
+	    if(token_id==LxPLS){                  // 加算なら
+	        setOpr("+");                    // アセンブルリスト用
+	        token_id = getToken();          // 次のトークンを取ってくる
+	        v = v + term();                 // <項>の解析結果と加算
+	    } else{                             // 減算なら
+	        setOpr("-");                    // アセンブルリスト用
+	        token_id = getToken();          // 次のトークンを取ってくる
+	        v = v - term();                 // <項>の解析を呼び出す
+	    }
+    }
+    return v;                       // 結果を返す
+}
+
+
+/* 実行しない
 public int address1Analyzer(){
 
 }
@@ -107,15 +117,26 @@ public int address2Analyzer(){
 public int valueAnalyzer(){
 
 }
+*/
 
 public int eqAnalyzer(){
-
+    printf("eqAnalyzer()\n");
+    int value;
+    token_id = getTokenID();
+    value = expression();
+    return value;
 }
 
+/* 実行しない
 public char[] toHex(int digit){
 
 }
 
 public void setEqStr(){
 
+}
+*/
+
+public void ch(){
+    printf("ch == *%c*, nextch = *%c*\n",gch(),gnextch());
 }

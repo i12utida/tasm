@@ -14,7 +14,6 @@
 #include <stdio.hmm>
 #include <ctype.hmm>
 
-#include "Assemble.hmm"
 #include "Lexical.hmm"
 #include "Error.hmm"
 
@@ -75,7 +74,7 @@ RsvWord[] rsvword = {
 int searchRsvWord(char[] word){
     int i;
     
-    for(i = 0; i < LxRSV_NUM; i = i+1){
+    for(i = 0; i < LxRSV_NUM + LxREG_NUM; i = i+1){
         if(strCmp(word,rsvword[i].token) == 0){
             token_id = rsvword[i].rsvword_id;
             return token_id;
@@ -88,10 +87,10 @@ int searchRsvWord(char[] word){
 /******** 次の文字を取ってきて行を1行進める関数 *********/
 public char getCh() {
     ch = nextch;                                /* 次の文字を現在の文字にする */
-    if(feof(sourcefp)) {                        /* 次の入力がEOFなら */
+    if(feof(fp)) {                        /* 次の入力がEOFなら */
         nextch = EOF;                           /* nextchにEOFの目印を */
     } else {                                    /* そうでなければ */
-        nextch = toUpper(fgetc(sourcefp));      /* nextchに次の文字を読み込む */
+        nextch = toUpper(fgetc(fp));      /* nextchに次の文字を読み込む */
 
         if(nextch==EOF)                         /* nextchにEOFが読み込まれていたら */
             error("input has '\x7f'");          /* 入力にEOFをがあるエラーを出力 */
@@ -169,11 +168,14 @@ int getOct() {
 
 /****************** 10進数を読んで値を返す ********************/
 int getDec() {
-  int val = 0;                                     // 初期値は 0
-  while (isDigit(ch)) {                            // 10進数字の間
-    val = val*10 + ord(ch) - ord('0');             // 値を計算
-    getCh();                                       // 次の文字を読む
-  }
+    int val = 0;                                   // 初期値は 0
+    int i;
+    int l = strLen(str);                           // strの長さを求める
+    printf("str = *%s*\n",str);
+
+    for(i = 0; isDigit(str[i]) == true; i = i+1){
+        val = val*10 + ord(str[i]) - ord('0');             // 値を計算
+    }
   return val;						                           // 10進数の値を返す
 }
 
@@ -198,7 +200,7 @@ void getString(){
     str[0] = ch;            /* strに頭文字を記憶*/
     int i;                  /* strの添字用変数を宣言 */
 
-    for(i = 1; isAlnum(nextch) == true; i = i+1){   /* chが英字もしくは数字なら */
+    for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* chが英字もしくは数字なら */
         getCh();            /* 次の文字を取ってくる */
         str[i] = ch;        /* chをstrに記憶 */
     }
@@ -214,7 +216,11 @@ int getWord(){
     token_id = searchRsvWord(str);      /* トークンが予約語と一致するか確認 */
     
     if(0 <= token_id && token_id < LxRSV_NUM){    /* token_idが予約語なら */
+        printf("RSVWORD\n");
         return token_id;                                 /* token_idを返す */
+    } else if(LxG0 <= token_id && token_id <= LxSP){
+        printf("REGISTER\n");
+        return token_id;
     } else {                                             /* token_idが予約語以外なら */
         return LxNAM;                                    /* ラベルであることを返す */
     }
@@ -246,14 +252,15 @@ public boolean getLabel(){
 
 /********* 次のトークンを読んでトークン番号を返す関数 **********/
 public int getToken(){
-    printf("start getToken()\n");
     token_id = -1;          /* トークンを初期化 */
+    printf("start getToken()\n");
 
     if(ch == '\0'){         /* まだ一度も文字を取ってきていない場合は */
         getCh();        /* ch にはnextchの改行をnextchに文字の行頭を取ってくる */
     }
 
     getCh();
+    printf("ch == *%c*, nextch = *%c*\n",ch,nextch);
 
     if(ch == ' '){
         skipSpaces();
@@ -303,9 +310,10 @@ public int getToken(){
     } else if(isDigit(ch)){         /* 数値であるなら */
     printf("NUMBER\n");
         getString();
+        printf("ch == *%c*, nextch = *%c*\n",ch,nextch);
         token_id = LxNUM;         /* トークン番号(数値)を設定 */
     } else{                         /* エラーなら */
-        printf("error\n");          /* エラー */
+        printf("undefined token number!!\n");          /* エラー */
         token_id = -1;              // とりあえず終了するために代用
     }
     
@@ -324,10 +332,25 @@ public void setLxFp(FILE file){
     fp = file;
 }
 
+/************** トークン番号を取ってくる *******************/
+public int getTokenID(){
+    return token_id;
+}
+
 /******** Lexicalの初期化関数 *******/
 public void initLexical() {
     ch = '\0';                          /* 現在の文字を初期化 */
     nextch = '\n';                      /* 次の文字の初期化 */
     token_id = -1;                      /* トークン番号の初期化 */
     str[0] = '\0';                         /* strの初期化 */
+}
+
+/* テスト用 */
+
+public char gch(){
+    return ch;
+}
+
+public char gnextch(){
+    return nextch;
 }
