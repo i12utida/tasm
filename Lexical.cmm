@@ -146,34 +146,31 @@ int hex(char ch) {
 
 /*******************  16進数を読んで値を返す ******************/
 int getHex() {
-  if (!isXdigit(ch))                               // 0x の次に16進数がない
-    error("16進数の形式");
-  int v = 0;                                       // 初期値は 0
-  while (isXdigit(ch)) {                           // 16進数字の間
-    v = v*16 + hex(ch);                            // 値を計算
-    getCh();                                       // 次の文字を読む
+    int v = 0;                                       // 初期値は 0
+    int i = 0;
+    int len = strLen(str);
+
+    if(len == 4){                                   // 16進が最初の<数字>を含むなら
+        i = 1;
+    }
+  /*** ここには16進の形式のエラー処理を記述する ******/
+  
+  /***************************************************/
+  while (isXdigit(str[i])) {                       // 16進数字の間
+    v = v*16 + hex(str[i]);                        // 値を計算
+    i = i+1;
   }
   return v;                                        // 16進数の値を返す
-}
-
-/*******************  8進数を読んで値を返す *******************/
-int getOct() {
-  int val = 0;                                     // 初期値は 0
-  while (isOdigit(ch)) {                           // 8進数字の間
-    val = val*8 + ord(ch) - ord('0');              // 値を計算
-    getCh();                                       // 次の文字を読む
-  }
-  return val;                                      // 8進数の値を返す
 }
 
 /****************** 10進数を読んで値を返す ********************/
 int getDec() {
     int val = 0;                                   // 初期値は 0
     int i;
-    int l = strLen(str);                           // strの長さを求める
+    int len = strLen(str);                           // strの長さを求める
     printf("str = *%s*\n",str);
 
-    for(i = 0; isDigit(str[i]) == true; i = i+1){
+    for(i = 0; isDigit(str[i]) == true && i < len; i = i+1){
         val = val*10 + ord(str[i]) - ord('0');             // 値を計算
     }
   return val;						                           // 10進数の値を返す
@@ -181,17 +178,19 @@ int getDec() {
 
 /******************* 数値を読み込む ***********************/
 public int getDigit() {
-  int val = 0;
-  if(ch=='0' && (nextch=='x' || nextch=='X')) {    // '0x' で始まれば16進数
-    getCh();                                       // '0'を読み飛ばす
-    getCh();                                       // 'x'を読み飛ばす
-    val = getHex();                                // 16進数の読み込み
-  } else if(ch=='0') {                             // '0' で始まれば8進数
-    val = getOct();                                // 8進数を読み込む
-  } else {                                         // それ以外は10進のはず
-    val = getDec();                                // 10進数を読み込む
-  }
-  return val;                                      // val=値
+    int val = 0;
+    int len = strLen(str);
+    
+    printf("getDigit()  str = *%s*\n",str);
+    if(str[len - 1] == 'H'){
+        printf("getHex実行\n");
+            val = getHex();                             // 16進数の読み込み
+    } else{                                             // それ以外は10進のはず
+        printf("getDec()実行\n");
+        val = getDec();                                 // 10進数を読み込む
+    }
+  
+    return val;                                         // val=値
 }
 
 
@@ -262,8 +261,7 @@ public int getToken(){
     printf("ch == *%c*, nextch = *%c*\n",ch,nextch);
 
     if(ch == ' '){
-        skipSpaces();
-        return  LxSPC;
+        token_id = LxSPC;
     } else if(ch == '"'){                  /* 文字列であるなら */
     printf("STRING\n");
         token_id = LxSTR;          /* トークン番号(文字列)を設定 */
@@ -309,7 +307,7 @@ public int getToken(){
     } else if(isDigit(ch)){         /* 数値であるなら */
     printf("NUMBER\n");
         getString();
-        printf("ch == *%c*, nextch = *%c*\n",ch,nextch);
+        printf("ch = *%c*, nextch = *%c*\n",ch,nextch);
         token_id = LxNUM;         /* トークン番号(数値)を設定 */
     } else{                         /* エラーなら */
         printf("undefined token number!!\n");          /* エラー */
