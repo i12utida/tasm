@@ -69,14 +69,17 @@ public void pass1(FILE sourcefp){
         } else if(token_id == LxEQU){       /* EQU命令なら */
             printf("EQU getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
-            address = eqAnalyzer();         /* <式>の結果を代入 */
+            address = eqAnalyzer();         /* <式>の解析結果を代入 */
             printf("after eqAnalyzer token_id = *%d*\n",token_id);
             changeSymAddr(pca,address);     /* ラベルのアドレスを変更 */
-            token_id = getTokenID();        /* 式の中でtoken_idが変わったのでsetする*/
+            token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする*/
             printf("setTokenID *%d*\n",token_id);
         } else if(token_id == LxORG){
-            skipToNewLineOrEOF();
-            printf("ORG\n");
+            printf("ORG getToken()\n");
+            getToken();                     /* <式>の部分を取ってくる */
+            pca = eqAnalyzer();             /* <式>の解析結果を代入 */
+            token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする */
+            printf("setTokenID *%d*\n",token_id);
         } else if(token_id == LxDC){
             skipToNewLineOrEOF();
             printf("DC\n");
