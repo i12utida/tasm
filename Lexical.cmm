@@ -108,7 +108,7 @@ void skipSpaces() {
 
 /*************** 行末まで読み飛ばす関数 *******************/
 public void skipToNewLineOrEOF() {
-    while(ch != '\n' && ch != EOF){                 /* 改行かEOFが来るまで */
+    while(nextch != '\n' && nextch != EOF){                 /* 改行かEOFが来るまで */
         getCh();                                    /* 1文字読み飛ばす */
     }
 }
@@ -253,7 +253,6 @@ public boolean getLabel(){
 /********* 次のトークンを読んでトークン番号を返す関数 **********/
 public int getToken(){
     token_id = -1;          /* トークンを初期化 */
-    printf("start getToken()\n");
 
     if(ch == '\0'){         /* まだ一度も文字を取ってきていない場合は */
         getCh();        /* ch にはnextchの改行をnextchに文字の行頭を取ってくる */

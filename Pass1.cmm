@@ -48,20 +48,26 @@ public void pass1(FILE sourcefp){
     ch();
     while(token_id != LxEOF && token_id != LxERR){    /* ファイルの終わりまで */
         if(token_id == LxEOL){              /* 改行なら */
+            printf("First Line getToken()\n");
             token_id = getToken();          /* 次のトークンを取ってくる */
             if(token_id == LxNAM){          /* 行の先頭が空白以外なら */
                 str = getLxStr();           /* Lexicalのstrを取ってくる */
                 if(isAlpha(str[0])){         /* ラベルに適した文字なら */
                     asignLabel(pca,str);    /* ラベルを登録 */
                 }
+            } else if(token_id == LxEOF){   /* ファイルの終わりなら */
+                break;                      /* pass1のループを抜ける */
             }
         }
-        printf("kkk\n");
+
+        printf("pass1 getToken()\n");
         token_id = getToken();              /* 次のトークンを取ってくる */
         printf("%d\n",token_id);
-        printf("jjjj\n");
 
-        if(token_id == LxEQU){              /* EQU命令なら */
+        if(token_id == LxCOM){
+            skipToNewLineOrEOF();
+        } else if(token_id == LxEQU){       /* EQU命令なら */
+            printf("EQU getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
             address = eqAnalyzer();         /* <式>の結果を代入 */
             printf("after eqAnalyzer token_id = *%d*\n",token_id);
@@ -69,18 +75,23 @@ public void pass1(FILE sourcefp){
             token_id = getTokenID();        /* 式の中でtoken_idが変わったのでsetする*/
             printf("setTokenID *%d*\n",token_id);
         } else if(token_id == LxORG){
+            skipToNewLineOrEOF();
             printf("ORG\n");
         } else if(token_id == LxDC){
+            skipToNewLineOrEOF();
             printf("DC\n");
         } else if(token_id == LxDS){
+            skipToNewLineOrEOF();
             printf("DS\n");
+        } else if(token_id == LxEOL){
+            printf("End of Line\n");
         } else if(token_id == LxEOF){
             printf("End of File\n");
         } else if(0 <= token_id  && token_id < LxRSV_NUM){
             printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
             pca = pca + searchSize(token_id);
         } else{
-            error("bad instruction!!");
+            error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
     }

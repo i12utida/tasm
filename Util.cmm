@@ -60,6 +60,7 @@ int factor(){
         exit(1);                            // 式が不正であるエラー処理
     }
 
+    printf("End of factor getToken()\n");
     token_id = getToken();                  // 次のトークンを取ってきておく
     return v;                               // 結果を返す
 }
