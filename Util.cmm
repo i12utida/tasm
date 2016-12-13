@@ -21,7 +21,7 @@ void setOpr(char[] str){
  * <因子> ::= <数値> | <ラベル> | ( <式> )
  */
 int factor(){
-    int v = 1;
+    int v = 0;
     
     /* 因子１ */
     if(token_id==LxPLS){              // 正の数なら
@@ -36,15 +36,18 @@ int factor(){
     /* 因子 */
     if(token_id==LxNUM){                    // 数値（10進数, 16進数, 文字定数）
 	    v = getDigit();                     // トークンの数値を取ってくる
+        printf(" factor v = *%d*\n",v);
 	    setOpr(getLxStr());                 // オペランド配列に登録
     } else if(token_id==LxNAM){             // ラベル
 	    int i = getLabelAddr(getLxStr());   // ラベルのアドレスを取ってくる
+        printf("factor i = *%d*\n",i);
 	    setOpr(getLxStr());                 // アセンブルリストに登録
 	    if(i == -1){                        // ラベルが登録されてない
             printf("can't find label\n");
 	        exit(1);                        // ラベルがないというエラー処理
 	    } else{
 	        v = v + i;                      // ラベルのアドレスを足す
+            printf("factor of NAM value = *%d*\n",v);
 	    }
     } else if(token_id==LxLBR){             // 左括弧だったら
 	    setOpr("(");                        // アセンブルリスト用
@@ -125,6 +128,7 @@ public int eqAnalyzer(){
     int value;
     token_id = getTokenID();
     value = expression();
+    printf("Return eqAnalyzer value = *%d*\n",value);
     return value;
 }
 
