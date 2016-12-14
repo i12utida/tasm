@@ -39,7 +39,7 @@ public OperationTbl[] operationtbl = {
 { LxEQU,	0,		0xFF,		7		}, 
 { LxORG,	0,		0xFF,		7		},
 { LxDS,		0,		0xFF,		7		}, 
-{ LxDC,		1,		0xFF,		8		}
+{ LxDC,		0,		0xFF,		8		}
 };
 
 public int searchSize(int token_id){

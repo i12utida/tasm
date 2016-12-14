@@ -1,5 +1,6 @@
 #include <stdio.hmm>
 #include <stdlib.hmm>
+#include <string.hmm>
 #include <ctype.hmm>
 
 #include "Pass1.hmm"
@@ -55,6 +56,8 @@ public void pass1(FILE sourcefp){
                 if(isAlpha(str[0])){         /* ラベルに適した文字なら */
                     asignLabel(pca,str);    /* ラベルを登録 */
                 }
+            } else if(token_id == LxCOM){
+                skipToNewLineOrEOF();
             } else if(token_id == LxEOF){   /* ファイルの終わりなら */
                 break;                      /* pass1のループを抜ける */
             }
@@ -80,9 +83,18 @@ public void pass1(FILE sourcefp){
             pca = eqAnalyzer();             /* <式>の解析結果を代入 */
             token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする */
             printf("setTokenID *%d*\n",token_id);
-        } else if(token_id == LxDC){
-            skipToNewLineOrEOF();
+        } else if(token_id == LxDC){        /* DC命令なら */
             printf("DC\n");
+            while(token_id != LxEOL && token_id != LxCOM){
+                token_id = getToken();          /* 次のトークンを取ってくる */
+                if(token_id == LxSTR){          /* <文字列>なら */
+                    str = getLxStr();           /* Lexicalのstrを取ってくる */
+                    printf(" DC str = *%s*, pca = *%d*\n",str,pca);
+                    pca = pca + strLen(str);    /* strの長さだけpcaを増加 */
+                } else if(token_id == LxNUM){   /* <数値>なら */
+                        pca = pca + 1;
+                }
+            }
         } else if(token_id == LxDS){
             skipToNewLineOrEOF();
             printf("DS\n");
@@ -93,6 +105,7 @@ public void pass1(FILE sourcefp){
         } else if(0 <= token_id  && token_id < LxRSV_NUM){
             printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
             pca = pca + searchSize(token_id);
+            skipToNewLineOrEOF();
         } else{
             error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
