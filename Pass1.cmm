@@ -96,8 +96,15 @@ public void pass1(FILE sourcefp){
                 }
             }
         } else if(token_id == LxDS){
-            skipToNewLineOrEOF();
             printf("DS\n");
+            while(token_id != LxEOL && token_id != LxCOM){
+                token_id = getToken();          /* 次のトークンを取ってくる */
+                if(token_id == LxSTR){          /* <文字列>なら */
+                    pca = pca + 1;    /* strの長さだけpcaを増加 */
+                } else if(token_id == LxNUM){   /* <数値>なら */
+                        pca = pca + 1;
+                }
+            }
         } else if(token_id == LxEOL){
             printf("End of Line\n");
         } else if(token_id == LxEOF){
