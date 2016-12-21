@@ -10,13 +10,11 @@ _errno
 	WS	1
 _sourcefp
 	WS	1
-_binaryfp
+_hexfp
 	WS	1
 _listfp
 	WS	1
 _pass1flag
-	WS	1
-_pass2flag
 	WS	1
 .L1
 	STRING	"使用方法 : %s [-h] [<source file>]\n"
@@ -82,15 +80,17 @@ _pass2flag
 .L11
 	STRING	"w"
 .L12
-	STRING	"binary.bin"
+	STRING	"hex.bin"
 .L13
 	STRING	"w"
 .L14
 	STRING	"list.lst"
 .L15
-	STRING	"binary.bin"
+	STRING	"hex.bin"
 .L16
 	STRING	"引数が多すぎます"
+.L17
+	STRING	"r"
 _main
 	ENTRY	1
 	LDC	1
@@ -99,7 +99,7 @@ _main
 	LDP	1
 	LDL	1
 	EQ
-	JF	.L17
+	JF	.L18
 	LDC	.L7
 	ARG
 	CALLP	1,_error
@@ -108,12 +108,12 @@ _main
 	CALLP	1,_exit
 	LDC	65535
 	MREG
-	JMP	.L18
-.L17
+	JMP	.L19
+.L18
 	LDP	1
 	LDL	1
 	GT
-	JF	.L19
+	JF	.L20
 	LDC	.L8
 	ARG
 	LDP	2
@@ -123,7 +123,7 @@ _main
 	CALLF	2,_strCmp
 	LDC	0
 	EQ
-	JF	.L19
+	JF	.L20
 	LDP	2
 	LDC	0
 	LDW
@@ -131,14 +131,14 @@ _main
 	CALLP	1,.usage
 	LDC	0
 	MREG
-	JMP	.L18
-.L19
+	JMP	.L19
+.L20
 	LDL	1
 	LDC	1
 	ADD
 	LDP	1
 	EQ
-	JF	.L20
+	JF	.L21
 	LDC	.L9
 	ARG
 	LDP	2
@@ -160,12 +160,12 @@ _main
 	LDC	.L12
 	ARG
 	CALLF	2,_fopen
-	STG	_binaryfp
+	STG	_hexfp
 	POP
 	LDG	_sourcefp
 	LDC	0
 	EQ
-	JF	.L21
+	JF	.L22
 	LDP	2
 	LDL	1
 	LDW
@@ -173,42 +173,42 @@ _main
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L21
+	JMP	.L19
+.L22
 	LDG	_listfp
 	LDC	0
 	EQ
-	JF	.L22
+	JF	.L23
 	LDC	.L14
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L22
-	LDG	_binaryfp
+	JMP	.L19
+.L23
+	LDG	_hexfp
 	LDC	0
 	EQ
-	JF	.L23
+	JF	.L24
 	LDC	.L15
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L23
-.L20
+	JMP	.L19
+.L24
+.L21
 	LDP	1
 	LDC	2
 	GT
-	JF	.L24
+	JF	.L25
 	LDC	.L16
 	ARG
 	CALLP	1,_error
 	LDC	65535
 	MREG
-	JMP	.L18
-.L24
+	JMP	.L19
+.L25
 	CALLP	0,_initPass1
 	LDG	_sourcefp
 	ARG
@@ -217,15 +217,32 @@ _main
 	ARG
 	CALLF	1,_fclose
 	POP
+	LDC	.L17
+	ARG
+	LDP	2
+	LDC	1
+	LDW
+	ARG
+	CALLF	2,_fopen
+	STG	_sourcefp
+	POP
+	CALLP	0,_initPass2
+	LDG	_hexfp
+	ARG
+	LDG	_listfp
+	ARG
+	LDG	_sourcefp
+	ARG
+	CALLP	3,_pass2
 	LDG	_listfp
 	ARG
 	CALLF	1,_fclose
 	POP
-	LDG	_binaryfp
+	LDG	_hexfp
 	ARG
 	CALLF	1,_fclose
 	POP
 	LDC	0
 	MREG
-.L18
+.L19
 	RET

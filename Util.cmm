@@ -5,16 +5,15 @@
 #include "Util.hmm"
 #include "Lexical.hmm"
 #include "SymTbl.hmm"
+#include "Editor.hmm"
 
+/**** static変数 ****/
 char[] eq_str = array(LENGTH);
+char[] hex = array(4);
 int token_id;
 int factor();
 int term();
 int expression();
-
-void setOpr(char[] str){
-    ;
-}
 
 /*
  * <因子１> ::= <因子> | + <因子> | - <因子>
@@ -132,15 +131,38 @@ public int eqAnalyzer(){
     return value;
 }
 
-/* 実行しない
+/************** 16進数値を16進文字列に変換 *************/
 public char[] toHex(int digit){
+    int i1;
+    int i2;
+    
+    i1 = digit/16;
+    i2 = digit%16;
 
+    if(i1 < 10){
+        hex[0] =chr( ord('0') + i1);
+    } else{
+        hex[0] =chr(ord('A') + i1);
+    }
+
+    if(i2 < 10){
+        hex[1] = chr(ord('0') + i2);
+    } else{
+        hex[1] = chr(ord('A') + i2);
+    }
+    
+    hex[2] = 'H';
+    hex[3] = '\0';
+
+    printf("toHex()  hex = *%s*\n",hex);
+
+    return hex;
 }
+/******************************************************/
 
 public void setEqStr(){
 
 }
-*/
 
 public void ch(){
     printf("ch == *%c*, nextch = *%c*\n",gch(),gnextch());

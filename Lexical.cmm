@@ -199,9 +199,16 @@ void getString(){
     str[0] = ch;            /* strに頭文字を記憶*/
     int i;                  /* strの添字用変数を宣言 */
 
-    for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* chが英字もしくは数字なら */
-        getCh();            /* 次の文字を取ってくる */
-        str[i] = ch;        /* chをstrに記憶 */
+    if(token_id == LxCOM){      /* コメントの場合は */
+         for(i = 1; nextch != '\n'; i = i+1){   /* nextchが改行以外なら*/
+            getCh();            /* 次の文字を取ってくる */
+            str[i] = ch;        /* chをstrに記憶 */
+        }
+    } else{                     /* そうでない場合は */
+        for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* nextchが英字もしくは数字なら */
+            getCh();            /* 次の文字を取ってくる */
+            str[i] = ch;        /* chをstrに記憶 */
+        }
     }
 
     str[i] = '\0';
@@ -293,6 +300,7 @@ public int getToken(){
     } else if(ch == ';'){           /* セミコロンなら */
     printf("COMMENT\n");
         token_id = LxCOM;           /* トークン番号(セミコロン)を設定 */
+        getString();
     } else if(ch == '+'){           /* プラスなら */
     printf("PLUS\n");
         token_id = LxPLS;           /* トークン番号(プラス)を設定 */

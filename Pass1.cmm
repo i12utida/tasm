@@ -69,7 +69,9 @@ public void pass1(FILE sourcefp){
 
         if(token_id == LxCOM){
             skipToNewLineOrEOF();
-        } else if(token_id == LxEQU){       /* EQU命令なら */
+        } 
+        
+        else if(token_id == LxEQU){       /* EQU命令なら */
             printf("EQU getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
             address = eqAnalyzer();         /* <式>の解析結果を代入 */
@@ -77,13 +79,17 @@ public void pass1(FILE sourcefp){
             changeSymAddr(pca,address);     /* ラベルのアドレスを変更 */
             token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする*/
             printf("setTokenID *%d*\n",token_id);
-        } else if(token_id == LxORG){
+        } 
+        
+        else if(token_id == LxORG){
             printf("ORG getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
             pca = eqAnalyzer();             /* <式>の解析結果を代入 */
             token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする */
             printf("setTokenID *%d*\n",token_id);
-        } else if(token_id == LxDC){        /* DC命令なら */
+        } 
+        
+        else if(token_id == LxDC){        /* DC命令なら */
             printf("DC\n");
             while(token_id != LxEOL && token_id != LxCOM){
                 token_id = getToken();          /* 次のトークンを取ってくる */
@@ -95,7 +101,13 @@ public void pass1(FILE sourcefp){
                         pca = pca + 1;
                 }
             }
-        } else if(token_id == LxDS){
+            
+            if(token_id == LxCOM){      /* コメントで終わったなら */
+                skipToNewLineOrEOF();   /* 次の行へ行く */
+            }
+        } 
+        
+        else if(token_id == LxDS){
             printf("DS\n");
             while(token_id != LxEOL && token_id != LxCOM){
                 token_id = getToken();          /* 次のトークンを取ってくる */
@@ -105,15 +117,23 @@ public void pass1(FILE sourcefp){
                         pca = pca + 1;
                 }
             }
-        } else if(token_id == LxEOL){
+        } 
+        
+        else if(token_id == LxEOL){
             printf("End of Line\n");
-        } else if(token_id == LxEOF){
+        } 
+        
+        else if(token_id == LxEOF){
             printf("End of File\n");
-        } else if(0 <= token_id  && token_id < LxRSV_NUM){
+        } 
+        
+        else if(0 <= token_id  && token_id < LxRSV_NUM){
             printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
             pca = pca + searchSize(token_id);
             skipToNewLineOrEOF();
-        } else{
+        } 
+        
+        else{
             error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
