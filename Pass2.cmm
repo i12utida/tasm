@@ -36,7 +36,7 @@ char[] opr3 = array(40);
 boolean label;
 
 void opStyle1(){
-    printf("pca = *%d*\n",pca);
+    printf("str = *%s*\n",str);
     setPca(pca);
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
@@ -45,7 +45,10 @@ void opStyle1(){
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
     pca = pca + searchSize(token_id);   /* pcaを増加 */
     token_id = getToken();              /* 予約語を取ってくる */
-    str = getLxStr();                   /* strにLexicalのstrを取ってくる */
+    if(token_id == LxCOM){
+        str = getLxStr();                   /* strにLexicalのstrを取ってくる */
+        setComment(str);
+    }
 }
 
 void opStyle2(){
@@ -82,29 +85,37 @@ void styleAnalyzer(){
     printf("Style matched\n");
     if(style == 1){
         printf("opStyle1()\n");
-        opStyle1();
+        opStyle1();                         // スタイル1の実行
         printBuffer();
+        initBuffers();                      // バッファの初期化
     } else if(style == 2){
         printf("opStyle2()\n");
-        opStyle2();
+        opStyle2();                         // スタイル2の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 3){
         printf("opStyle3()\n");
-        opStyle3();
+        opStyle3();                         // スタイル3の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 4){
         printf("opStyle4()\n");
-        opStyle4();
+        opStyle4();                         // スタイル4の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 5){
         printf("opStyle5()\n");
-        opStyle5();
+        opStyle5();                         // スタイル5の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 6){
         printf("opStyle6()\n");
-        opStyle6();
+        opStyle6();                         // スタイル6の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 7){
         printf("opStyle7()\n");
-        opStyle7();
+        opStyle7();                         // スタイル7の実行
+        initBuffers();                      // バッファの初期化
     } else if(style == 8){
         printf("opStyle8()\n");
-        opStyle8();
+        opStyle8();                         // スタイル8の実行
+        initBuffers();                      // バッファの初期化
     } else{
         error("Bad Operation Style");
     }
@@ -122,6 +133,7 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
         if(token_id == LxCOM){                /* 行頭がコメントなら */
             setComment(str);                    /* リストのコメントにセット */
         } else if(isAlpha(str[0])){           /* ラベルに適した文字なら */
+            printf("firstlabel *%s*\n",str);
             setLabel(str);                      /* リストのlabelにセット */
         } else{                               /* ラベルにできない文字なら */
             token_id = LxERR;                   /* トークンをエラーにセット */
@@ -138,7 +150,10 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
             token_id = getToken();          /* 次のトークンを取ってくる */
             if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
                 str = getLxStr();                   /* Lexicalのstrを取ってくる */
+                printf("NAM str = *%s*\n",str);
+                setLabel(str);
             } else if(token_id == LxCOM){       /* 行頭がコメントなら */
+                str = getLxStr();
                 setComment(str);                    /* リストのコメントにセット */
             } else if(token_id == LxEOF){       /* ファイルの終わりなら */
                 printBuffer();                      /* 最終行のバッファを出力 */
@@ -149,7 +164,7 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
 
         printf("pass2 getToken()\n");
         token_id = getToken();              /* 次のトークンを取ってくる */
-        printf("%d\n",token_id);
+        printf("token_id = %d\n",token_id);
 
         if(token_id == LxCOM){                              /* コメントなら */
             str = getLxStr();                                   /* Lexicalのstrを取ってくる */
@@ -165,6 +180,7 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
 
     }
 
+    printHex();                                         /* 溜め込んだ機械語を全て16進ファイルに出力 */
     printf("pass2() End\n");
 }
 

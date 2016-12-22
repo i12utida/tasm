@@ -154,7 +154,6 @@ public char[] toHex(int digit){
     hex[2] = 'H';
     hex[3] = '\0';
 
-    printf("toHex()  hex = *%s*\n",hex);
 
     return hex;
 }

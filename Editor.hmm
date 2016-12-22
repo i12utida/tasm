@@ -14,6 +14,7 @@ public void setComment(char[] str);
 public void setMachineCode(int code);
 
 public void printBuffer();
+public void printHex();
 
 public void setLstFp(FILE lstfp);
 public void setHexFp(FILE hfp);
