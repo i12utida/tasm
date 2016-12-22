@@ -1,3 +1,11 @@
+
+/*
+ * いま許容しているバグ!!
+ * 現状それぞれのopStyle関数呼び出し後にリスト出力を行っているが、
+ * これではコメント文のみの行などが出力されないため、
+ * 今後改行トークンが来たら出力するという手法に変更する必要がある。
+ */
+
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
@@ -38,21 +46,48 @@ boolean label;
 void opStyle1(){
     printf("str = *%s*\n",str);
     setPca(pca);
+    pca = pca + searchSize(token_id);   /* pcaを増加 */
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
     first_byte = op;                    /* 第一バイトをセット */
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
-    pca = pca + searchSize(token_id);   /* pcaを増加 */
-    token_id = getToken();              /* 予約語を取ってくる */
+    token_id = getToken();              /* コメントもしくは改行トークンを取ってくる */
     if(token_id == LxCOM){
-        str = getLxStr();                   /* strにLexicalのstrを取ってくる */
-        setComment(str);
+        str = getLxStr();               /* strにLexicalのstrを取ってくる */
+        setComment(str);                /* リストのコメントをセットする */
     }
 }
 
 void opStyle2(){
-    skipToNewLineOrEOF();           /* 実装するまでは読み飛ばす */
+    printf("str = *%s*\n",str);
+    setPca(pca);
+    pca = pca + searchSize(token_id);   /* pcaを増加 */
+    setRsvWord(str);                    /* リストの予約語をセット */
+    op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
+    token_id = getToken();              /* <レジスタ>の部分を取ってくる */
+    opr1 = getLxStr();                  /* Lexicalからレジスタの綴りを取ってくる */
+    setOpr(opr1);                       /* オペランドをセット */
+    printf("opStyle2() register token_id = *%d*\n",token_id);
+    if(token_id == LxG0){
+        gr = 0x00;
+    } else if(token_id == LxG1){
+        gr = 0x04;
+    } else if(token_id == LxG2){
+        gr = 0x08;
+    } else if(token_id == LxSP){
+        gr = 0x0C;
+    }
+    printf("op = *%d*,  gr = *%d*\n",op,gr);
+    first_byte = op | gr;               /* 第一バイトを確定 */
+    printf("opStyle2() first_byte = *%d*\n",first_byte);
+    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
+    setFirstByte(first_byte);           /* リストの第一バイトをセット */
+    token_id = getToken();              /* コメントもしくは改行トークンを取ってくる */
+    if(token_id == LxCOM){
+        str = getLxStr();               /* strにLexicalのstrを取ってくる */
+        setComment(str);                /* リストのコメントをセットする */
+    }
 }
 
 void opStyle3(){
@@ -86,11 +121,12 @@ void styleAnalyzer(){
     if(style == 1){
         printf("opStyle1()\n");
         opStyle1();                         // スタイル1の実行
-        printBuffer();
+        printBuffer();                      // リストファイルに出力
         initBuffers();                      // バッファの初期化
     } else if(style == 2){
         printf("opStyle2()\n");
         opStyle2();                         // スタイル2の実行
+        printBuffer();                      // リストファイルに出力
         initBuffers();                      // バッファの初期化
     } else if(style == 3){
         printf("opStyle3()\n");

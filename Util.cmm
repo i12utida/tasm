@@ -133,22 +133,25 @@ public int eqAnalyzer(){
 
 /************** 16進数値を16進文字列に変換 *************/
 public char[] toHex(int digit){
+    printf("START toHex()  digit = *%d*\n",digit);
     int i1;
     int i2;
-    
+
     i1 = digit/16;
     i2 = digit%16;
+
+    printf("i1 = *%d*,  i2 = *%d*\n",i1,i2);
 
     if(i1 < 10){
         hex[0] =chr( ord('0') + i1);
     } else{
-        hex[0] =chr(ord('A') + i1);
+        hex[0] =chr(ord('A') + i1-10);
     }
 
     if(i2 < 10){
         hex[1] = chr(ord('0') + i2);
     } else{
-        hex[1] = chr(ord('A') + i2);
+        hex[1] = chr(ord('A') + i2-10);
     }
     
     hex[2] = 'H';
