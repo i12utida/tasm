@@ -38,7 +38,6 @@ int factor(){
         printf(" factor v = *%d*\n",v);
 	    setOpr(getLxStr());                 // オペランド配列に登録
     } else if(token_id==LxNAM){             // ラベル
-        printSymTbl();
         printf("eqAnalyzer NAM getLxStr() *%s*\n",getLxStr());
 	    int i = getLabelAddr(getLxStr());   // ラベルのアドレスを取ってくる
         printf("factor i = *%d*\n",i);
@@ -142,8 +141,9 @@ public int eqAnalyzer(){
     printf("eqAnalyzer()\n");
     int value;
     token_id = getTokenID();        /* 現在のトークン番号を取ってくる */
+    printf("eqAnalyzer token_id = *%d*\n",token_id);
     value = expression();           /* 式の解析を開始 */
-    printf("Return eqAnalyzer value = *%d*\n",value);
+    printf("Return eqAnalyzer value = *%d*   token_id = *%d*\n",value,token_id);
     return value;
 }
 

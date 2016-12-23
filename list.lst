@@ -1,7 +1,19 @@
+00  1D E0       START  LD      SP,#0E0H       
+02  15 A0              LD      G1,#TABLE-1    
+04  35 01       L9     ADD     G1,#1          
+06  19 00              LD      G2,0,G1        
+08  59 00              CMP     G2,#0          
+0A  35 01              ADD     G1,#1          ; STATE
 0C  D8          L10    PUSH    G2             ; 6
+0D  19 00              LD      G2,0,G1        ; 7
+0F  59 01       L11    SUB     G2,#1          ; 5
 11  00                 NO                     ; 3
 12  00                 NO                     ; 3
-15  CB 01              OUT     G2,SPK         
+13  19 FF       L12    LD      G2,#0FFH       ; 5
+15  CB 01              OUT     G2,SPK         ; 7
+17  19 00              LD      G2,0,G1        ; 7
+19  59 01       L13    SUB     G2,#1          ; 5
 1B  00                 NO                     ; 3
-1C  CB 01       L14    OUT     G2,SPK         
+1C  CB 01       L14    OUT     G2,SPK         ; 7
 1E  DA                 POP     G2             ; 6
+1F  59 01              SUB     G2,#1          ; 5
