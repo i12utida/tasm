@@ -4,6 +4,5 @@ public int address2Analyzer();
 public int valueAnalyzer();
 public int eqAnalyzer();
 public char[] toHex(int digit);
-public void setEqStr();
 public void ch();
 #endif /* UTIL_H */

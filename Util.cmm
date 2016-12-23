@@ -8,7 +8,7 @@
 #include "Editor.hmm"
 
 /**** static変数 ****/
-char[] eq_str = array(LENGTH);
+char[] str = array(LENGTH);
 char[] hex = array(4);
 int token_id;
 int factor();
@@ -38,6 +38,8 @@ int factor(){
         printf(" factor v = *%d*\n",v);
 	    setOpr(getLxStr());                 // オペランド配列に登録
     } else if(token_id==LxNAM){             // ラベル
+        printSymTbl();
+        printf("eqAnalyzer NAM getLxStr() *%s*\n",getLxStr());
 	    int i = getLabelAddr(getLxStr());   // ラベルのアドレスを取ってくる
         printf("factor i = *%d*\n",i);
 	    setOpr(getLxStr());                 // アセンブルリストに登録
@@ -125,8 +127,8 @@ public int valueAnalyzer(){
 public int eqAnalyzer(){
     printf("eqAnalyzer()\n");
     int value;
-    token_id = getTokenID();
-    value = expression();
+    token_id = getTokenID();        /* 現在のトークン番号を取ってくる */
+    value = expression();           /* 式の解析を開始 */
     printf("Return eqAnalyzer value = *%d*\n",value);
     return value;
 }
@@ -162,8 +164,9 @@ public char[] toHex(int digit){
 }
 /******************************************************/
 
-public void setEqStr(){
-
+void setEqOpr(){
+    str = getLxStr();
+    setOpr(str);
 }
 
 public void ch(){

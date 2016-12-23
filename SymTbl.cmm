@@ -17,6 +17,7 @@ public void initSymTbl(){
 }
 
 public void printSymTbl(){
+    printf("printSymTbl()\n");
     int i;
     for(i = 0; i < label_cnt; i = i+1){
         printf(" label_address = %d, label_name = %s\n",label_address[i],label[i]);
@@ -40,6 +41,7 @@ public void asignLabel(int pca, char[] str){
 
 /******** ラベルのアドレスを返す関数 *********/
 public int getLabelAddr(char[] str){
+    printf("getLabelAddress() *%s*\n",str);
     int address = -1;
 
     int i;
