@@ -110,10 +110,24 @@ int expression(){
 }
 
 
-/* 実行しない
 public int address1Analyzer(){
-
+    printf("address1Analyzer()\n");
+    int value;
+    token_id = getTokenID();        /* 現在のトークン番号を取ってくる */
+    if(token_id == LxIMM){          /* イミディエイトなら */
+        setOpr("#");                    /* '#'をセット */
+        token_id = getToken();          /* <式>の部分を取ってくる */
+        value = eqAnalyzer();           /* 式の解析を行い、結果を取ってくる */
+        return value;                   /* 結果を返す */
+    } else{                         /* インデクスドの場合 */
+        value = eqAnalyzer();           /* 式の解析を行う */
+        return value;                   /* 結果を返す */
+    }
+    
+    return -1;                      /* エラーの場合はこれを返す */
 }
+
+/************* *実行しない ********************
 
 public int address2Analyzer(){
 
@@ -122,7 +136,7 @@ public int address2Analyzer(){
 public int valueAnalyzer(){
     
 }
-*/
+***********************************************/
 
 public int eqAnalyzer(){
     printf("eqAnalyzer()\n");

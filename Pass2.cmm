@@ -126,9 +126,11 @@ void opStyle3(){
 
     token_id = getToken();              /* <式>の部分を取ってくる */
     second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
-    setMachineCode(second_byte);       /* 16進ファイルの機械語をセット */
+    setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
     setSecondByte(second_byte);         /* リストの第二バイトをセット */
     
+    token_id = getToken();              /* ','が入るはず */
+    printf("opStyle4() token_id = *%d*\n",token_id);
 
     
 
@@ -140,7 +142,52 @@ void opStyle3(){
 }
 
 void opStyle4(){
-    skipToNewLineOrEOF();           /* 実装するまでは読み飛ばす */
+    printf("str = *%s*\n",str);
+    setPca(pca);
+    pca = pca + searchSize(token_id);   /* pcaを増加 */
+    setRsvWord(str);                    /* リストの予約語をセット */
+    op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
+
+    token_id = getToken();              /* <レジスタ>の部分を取ってくる */
+    opr1 = getLxStr();                  /* Lexicalからレジスタの綴りを取ってくる */
+    setOpr(opr1);                       /* オペランドをセット */
+    printf("opStyle3() register token_id = *%d*\n",token_id);
+    if(token_id == LxG0){
+        gr = 0x00;
+    } else if(token_id == LxG1){
+        gr = 0x04;
+    } else if(token_id == LxG2){
+        gr = 0x08;
+    } else if(token_id == LxSP){
+        gr = 0x0C;
+    }
+
+    printf("op = *%d*,  gr = *%d*\n",op,gr);
+    first_byte = op | gr;               /* 第一バイトを確定 */
+    printf("opStyle3() first_byte = *%d*\n",first_byte);
+    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
+    setFirstByte(first_byte);           /* リストの第一バイトをセット */
+
+    token_id = getToken();              /* コメントもしくは改行トークンを取ってくる */
+    if(token_id == LxCMM){              /* カンマなら */
+        setOpr(",");                    /* リストのオペランドにカンマをセット */
+    } else {
+        /* <式>の部分がないというエラー処理を書く */
+    }
+
+    token_id = getToken();              /* <式>の部分を取ってくる */
+    second_byte = address1Analyzer();   /* <式>の部分を解析して第二バイトに格納する */
+    setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
+    setSecondByte(second_byte);         /* リストの第二バイトをセット */
+    
+
+    
+
+    if(token_id == LxCOM){
+        str = getLxStr();               /* strにLexicalのstrを取ってくる */
+        setComment(str);                /* リストのコメントをセットする */
+    }
+
 }
 
 void opStyle5(){
