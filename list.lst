@@ -1,0 +1,7 @@
+0C  D8          L10    PUSH    G2             ; 6
+11  00                 NO                     ; 3
+12  00                 NO                     ; 3
+15  CB 01              OUT     G2,SPK         
+1B  00                 NO                     ; 3
+1C  CB 01       L14    OUT     G2,SPK         
+1E  DA                 POP     G2             ; 6

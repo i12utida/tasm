@@ -15,6 +15,7 @@ boolean eofflag = false;    /* EOFフラグ */
 int pca;
 char[] str;
 int token_id;
+int pre_token_id;           /* 一つ前のトークン */
 int style;
 int address;
 boolean label;
@@ -38,8 +39,8 @@ public void pass1(FILE sourcefp){
     token_id = getToken();                  /* 最初のトークンを取ってくる */
     if(token_id != LxSPC){                  /* ファイルの最初がスペース以外なら */
         str = getLxStr();                   /* Lexicalのstrを取ってくる */
-        if(isAlpha(str[0])){                 /* ラベルに適した文字なら */
-            asignLabel(pca,str);          /* ラベルを登録 */
+        if(isAlpha(str[0])){                /* ラベルに適した文字なら */
+            asignLabel(pca,str);            /* ラベルを登録 */
         } else{                             /* ラベルにできない文字なら */
             token_id = LxERR;               /* トークンをエラーにセット */
         }
@@ -48,7 +49,7 @@ public void pass1(FILE sourcefp){
     printf("before LxEOL\n");
     ch();
     while(token_id != LxEOF && token_id != LxERR){    /* ファイルの終わりまで */
-        if(token_id == LxEOL){              /* 改行なら */
+        while(token_id == LxEOL){              /* 改行なら */
             printf("First Line getToken()\n");
             token_id = getToken();          /* 次のトークンを取ってくる */
             if(token_id == LxNAM){          /* 行の先頭が空白以外なら */
