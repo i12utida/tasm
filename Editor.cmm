@@ -116,11 +116,16 @@ public void setRsvWord(char[] string){
 
 /******************* オペランドのセッター ******************/
 public void setOpr(char[] string){
-   int i;
-   int length = strLen(string);
-   for(i = 0; i < length; i = i+1){
-       opr[length + i] = string[i];
+    printf("setOpr() string = *%s*\n",string);
+    int i;
+    int oprlen = strLen(opr);           /* oprの長さを格納 */
+    int length = strLen(string);        /* 入力文字列の長さを格納 */
+    for(i = 0; i < length; i = i+1){
+        opr[oprlen] = string[i];        /* 文字を格納 */
+        oprlen = oprlen + 1;            /* 次の領域にする */
    }
+
+   opr[oprlen] = '\0';
    printf("setOpr() opr = *%s*\n",opr);
 }
 /**********************************************************/
