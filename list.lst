@@ -1,19 +1,27 @@
-00  1D E0       START  LD      SP,#0E0H       
-02  15 A0              LD      G1,#TABLE-1    
-04  35 01       L9     ADD     G1,#1          
+00  1F E0       START  LD      SP,#0E0H       
+02  17 A0              LD      G1,#TABLE-1    
+04  37 01       L9     ADD     G1,#1          
 06  19 00              LD      G2,0,G1        
-08  59 00              CMP     G2,#0          
-0A  35 01              ADD     G1,#1          ; STATE
-0C  D8          L10    PUSH    G2             ; 6
-0D  19 00              LD      G2,0,G1        ; 7
-0F  59 01       L11    SUB     G2,#1          ; 5
-11  00                 NO                     ; 3
-12  00                 NO                     ; 3
-13  19 FF       L12    LD      G2,#0FFH       ; 5
-15  CB 01              OUT     G2,SPK         ; 7
-17  19 00              LD      G2,0,G1        ; 7
-19  59 01       L13    SUB     G2,#1          ; 5
-1B  00                 NO                     ; 3
-1C  CB 01       L14    OUT     G2,SPK         ; 7
-1E  DA                 POP     G2             ; 6
-1F  59 01              SUB     G2,#1          ; 5
+08  5B 00              CMP     G2,#0          
+0A  A4 9F              JZ      L15            
+0C  37 01              ADD     G1,#1          ; STATE
+0E  D8          L10    PUSH    G2             ; 6
+0F  19 00              LD      G2,0,G1        ; 7
+11  4B 01       L11    SUB     G2,#1          ; 5
+13  00                 NO                     ; 3
+14  00                 NO                     ; 3
+15  A4 89              JZ      L12            ; 4
+17  A0 81              JMP     L11            ; 5
+19  1B FF       L12    LD      G2,#0FFH       ; 5
+1B  CB 01              OUT     G2,SPK         ; 7
+1D  19 00              LD      G2,0,G1        ; 7
+1F  4B 01       L13    SUB     G2,#1          ; 5
+21  00                 NO                     ; 3
+22  A4 96              JZ      L14            ; 4
+24  A0 8F              JMP     L13            ; 5
+26  CB 01       L14    OUT     G2,SPK         ; 7
+28  DA                 POP     G2             ; 6
+29  4B 01              SUB     G2,#1          ; 5
+2B  A4 74              JZ      L9             ; 4
+2D  A0 7E              JMP     L10            ; 5
+2F  A0 70       L15    JMP     START          

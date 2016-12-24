@@ -172,7 +172,7 @@ void opStyle4(){
     token_id = getToken();              /* '#'もしくは数値を取ってくる */
     if(token_id == LxIMM){              /* イミディエイトなら */
         setOpr("#");                        /* '#'をセット */
-        xr = 0x11;                          /* xr部をセット */
+        xr = 0x03;                          /* xr部をセット */
         token_id = getToken();              /* <式>の最初の部分を取ってくる */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
         setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
@@ -190,7 +190,7 @@ void opStyle4(){
             if(token_id == LxG1){               /* G1インデクスモードなら */
                 xr = 0x01;                          /* xrをセット */
             } else if(token_id == LxG2){         /* G2インデクスモードなら */
-                xr = 0x10;                          /* xrをセット */
+                xr = 0x02;                          /* xrをセット */
             } else{
                 /* インデクス部が異常であるエラー処理 */
             }
@@ -268,7 +268,7 @@ void opStyle5(){
             if(token_id == LxG1){               /* G1インデクスモードなら */
                 xr = 0x01;                          /* xrをセット */
             } else if(token_id == LxG2){         /* G2インデクスモードなら */
-                xr = 0x10;                          /* xrをセット */
+                xr = 0x02;                          /* xrをセット */
             } else{
                 /* インデクス部が異常であるエラー処理 */
             }
@@ -301,11 +301,63 @@ void opStyle5(){
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
     setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
 
-
 }
 
 void opStyle6(){
-    skipToNewLineOrEOF();           /* 実装するまでは読み飛ばす */
+
+    printf("str = *%s*\n",str);
+    setPca(pca);
+    pca = pca + searchSize(token_id);   /* pcaを増加 */
+    setRsvWord(str);                    /* リストの予約語をセット */
+    op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
+
+    token_id = getToken();              /* <式>の最初の部分を取ってくる */
+    if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
+        second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
+        setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
+        setSecondByte(second_byte);         /* リストの第二バイトをセット */
+        
+        token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
+        if(token_id == LxCMM){              /* カンマ(インデクス)なら */
+            printf("asfkjkldsajfasfjkslajfasjfljafjafsahfjasklfkalsjfklajsfkjaslkjfajskfljas\n");
+            setOpr(",");                        /* リストのオペランドにカンマをセット */
+            token_id = getToken();              /* <インデクス>の部分を取ってくる */
+            if(token_id == LxG1){               /* G1インデクスモードなら */
+                xr = 0x01;                          /* xrをセット */
+            } else if(token_id == LxG2){         /* G2インデクスモードなら */
+                xr = 0x02;                          /* xrをセット */
+            } else{
+                /* インデクス部が異常であるエラー処理 */
+            }
+            opr1 = getLxStr();                  /* Lexicalのstrをopr3にセット */
+            printf("GR = *%s*\n",opr1);
+            setOpr(opr1);                       /* リストのオペランドにセット */
+        } else {                            /* ダイレクトであるなら */
+            xr = 0x00;                          /* xrをセット */
+        }
+    }
+
+    first_byte = op | xr;          /* first_byteを確定 */
+    printf("opStyle6() first_byte = *%d*\n",first_byte);
+    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
+    setFirstByte(first_byte);           /* リストの第一バイトをセット */
+
+    if(token_id == LxG1 || token_id == LxG2){   /* インデクスモードだったら */
+        token_id = getToken();                      /* コメントもしくは改行を取ってくる */
+    } else {                                    /* それ以外のモードなら */
+        
+        token_id = getTokenID();                    /* 式の解析で現在のトークン番号が変わったので取ってくる(コメントもしくは改行) */
+    }
+    
+    printf("before comment set    token_id = *%d*\n",token_id);
+    if(token_id == LxCOM){
+        str = getLxStr();               /* strにLexicalのstrを取ってくる */
+        setComment(str);                /* リストのコメントをセットする */
+    }
+
+    setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
+    setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
+
 }
 
 void opStyle7(){
@@ -348,6 +400,7 @@ void styleAnalyzer(){
     } else if(style == 6){
         printf("opStyle6()\n");
         opStyle6();                         // スタイル6の実行
+        printBuffer();
         initBuffers();                      // バッファの初期化
     } else if(style == 7){
         printf("opStyle7()\n");
