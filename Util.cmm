@@ -1,3 +1,15 @@
+
+/*
+ * eqAnalyzer()はgetToken()を使うため、
+ * Passとのトークン番号にズレが生じることに注意すること.
+ *
+ * また、そのズレを修正するため、
+ * getTokenIDによってLexicalの現在のトークン番号を
+ * 取ってこれるように設計してある.
+
+ * eqAnalyzer()を使った場合はgetTokenIDを必ず使うこと.
+ */
+
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
