@@ -31,6 +31,7 @@ int first_byte;
 int second_byte;
 int third_byte;
 int forth_byte;
+int[] byte = array(256);
 
 int token_id;
 int style;
@@ -42,6 +43,61 @@ char[] opr2 = array(40);
 char[] opr3 = array(40);
 
 boolean label;
+
+int cnt;
+
+/* 拡張式 
+ * expantion -> expression
+ *              STRING
+ */
+void expantion(){
+    printf("EXPANTION()  token_id = *%d*\n",token_id);
+    int i;
+    if(token_id == LxSTR){
+        str = getLxStr();
+	    for(i = 0; i < strLen(str); i = i+1){
+		    byte[cnt] = ord(str[i]);
+            cnt = cnt + 1;
+        }
+        setOpr("\"");
+        setOpr(str);
+	    token_id = getToken();          /* ダブルクウォートがくるはず */
+        token_id = getToken();          /* カンマ、改行、コメントがくる */
+    } else if(token_id != LxEOL && token_id != LxEOF){
+        printf("EXPANTION()  token_id = *%d*\n",token_id);
+        printf("fdsjfdas;jfdalksjfldlajfjaslf;dasjfdlkasjlkfj\n");
+        byte[cnt] = eqAnalyzer();
+        cnt = cnt + 1;
+        token_id = getTokenID();    /* カンマ、改行、コメントがくる */
+    }
+}
+
+
+
+
+/* 値列
+ * valueSeq -> expantion
+ */
+void valueSeq(){
+    cnt = 0;
+    while(true){
+	    token_id = getToken();
+	    expantion();
+	    if(token_id == LxCMM){
+	        setOpr(",");
+	    } else if(token_id == LxCOM){
+            str = getLxStr();
+            setComment(str);
+	    } else if(token_id == LxEOL || token_id == LxEOF){
+            printf("BREAK!!!!!!!!!!!!!!!!!!!!\n");
+	        break ;
+	    } else {
+            /* エラー処理 */
+	        break ;
+	    }
+    }
+}
+
 
 void EQU(){
     int value;
@@ -261,11 +317,9 @@ void opStyle4(){
         xr = 0x03;                          /* xr部をセット */
         token_id = getToken();              /* <式>の最初の部分を取ってくる */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
-        setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
     } else if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
-        setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
         token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
@@ -290,7 +344,6 @@ void opStyle4(){
 
     first_byte = op | gr | xr;          /* first_byteを確定 */
     printf("opStyle4() first_byte = *%d*\n",first_byte);
-    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
 
     if(token_id == LxG1 || token_id == LxG2){   /* インデクスモードだったら */
@@ -400,7 +453,6 @@ void opStyle6(){
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
     if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
-        setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
         token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
@@ -425,7 +477,6 @@ void opStyle6(){
 
     first_byte = op | xr;          /* first_byteを確定 */
     printf("opStyle6() first_byte = *%d*\n",first_byte);
-    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
 
     if(token_id == LxG1 || token_id == LxG2){   /* インデクスモードだったら */
@@ -461,7 +512,62 @@ void opStyle7(){
 }
 
 void opStyle8(){
-    skipToNewLineOrEOF();           /* 実装するまでは読み飛ばす */
+
+    setRsvWord(str);                    /* リストの予約語をセット */
+    valueSeq();
+    int i;
+    int limit = 0;
+
+    while((cnt - limit)/5 != 0){        /* 値が4以上のとき */
+        printf("cnt/5 = *%d*\n",cnt/5);
+        setFirstByte(byte[limit]);        /* リストの第一バイトをセット */
+        setSecondByte(byte[limit+1]);       /* リストの第二バイトをセット */
+        setThirdByte(byte[limit+2]);        /* リストの第三バイトをセット */
+        setForthByte(byte[limit+3]);        /* リストの第四バイトをセット */
+        limit = limit + 4;        /* 4つ領域を割り当てたので4引く */
+        for (i = 0; i < 4; i = i+1){
+            setMachineCode(byte[limit+i]);
+        }
+        printf("pca = *%d* \n",pca);
+        setPca(pca);
+        pca = pca + 4;          /* pcaをカウントアップ */
+        printf("DS() over 4  printBuffer()\n");
+        printBuffer();          /* リストのバッファを出力 */
+        initBuffers();           /* バッファを初期化 */
+    }
+
+    while((cnt - limit) != 0){
+        pca = pca + (cnt - limit - 1);
+        setPca(pca);
+        printf("cnt < 4 ,     cnt = *%d*  ,  limit = *%d*\n",cnt,limit); 
+        if( (cnt - limit) != 0){
+            setFirstByte(byte[limit]);
+            setMachineCode(byte[limit]);
+            limit = limit + 1;
+        }
+
+        if((cnt - limit) != 0){
+            setSecondByte(byte[limit]);
+            setMachineCode(byte[limit]);
+            limit = limit + 1;
+        }
+
+        if((cnt - limit) != 0){
+            setThirdByte(byte[limit]);
+            setMachineCode(byte[limit]);
+            limit = limit + 1;
+        }
+
+        if((cnt - limit) != 0){
+            setForthByte(byte[limit]);
+            setMachineCode(byte[limit]);
+            limit = limit + 1;
+        }
+
+    printBuffer();
+    initBuffers();
+
+    }
 }
 
 void styleAnalyzer(){
@@ -515,6 +621,8 @@ void styleAnalyzer(){
 
 public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
     initBuffers();                          /* バッファの初期化 */
+    setMachineCode(0);
+    setMachineCode(0xd0);
     setLxFp(sourcefp);
     setLstFp(listfp);
     setHexFp(hexfp);

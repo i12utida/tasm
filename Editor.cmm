@@ -450,9 +450,13 @@ public void printHex(){
     int i;
 
     for(i = 0; i < cnt; i = i+1){        /* 機械語の個数分繰り返す */
-        strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
+        printf("MACHINE CODE [i] = *%d*\n",machine_code[i]);
+        //fputc(chr(machine_code[i]), hexfp);
+        
+       strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
         str[2] = '\0';                  /* 'H'を取り除く */
         fputs(str,hexfp);               /* 16進ファイルに出力 */
+        
     }
 }
 

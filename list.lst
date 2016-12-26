@@ -1,33 +1,16 @@
-01              SPK     EQU     01H            
-02              SIO_DAT EQU     02H            
-03              SIO_STA EQU     03H            
-                        ORG     70H            ; ELECTRONIC ORGOL
-70  1F E0               LD      SP,#0E0H       
-72  17 A0               LD      G1,#TABLE-1    
-74  37 01       L9      ADD     G1,#1          
-76  19 00               LD      G2,0,G1        
-78  5B 00               CMP     G2,#0          
-7A  A4 9F               JZ      L15            
-7C  37 01               ADD     G1,#1          ; STATE
-7E  D8          L10     PUSH    G2             ; 6
-7F  19 00               LD      G2,0,G1        ; 7
-81  4B 01       L11     SUB     G2,#1          ; 5
-83  00                  NO                     ; 3
-84  00                  NO                     ; 3
-85  A4 89               JZ      L12            ; 4
-87  A0 81               JMP     L11            ; 5
-89  1B FF       L12     LD      G2,#0FFH       ; 5
-8B  CB 01               OUT     G2,SPK         ; 7
-8D  19 00               LD      G2,0,G1        ; 7
-8F  4B 01       L13     SUB     G2,#1          ; 5
-91  00                  NO                     ; 3
-92  A4 96               JZ      L14            ; 4
-94  A0 8F               JMP     L13            ; 5
-96  CB 01       L14     OUT     G2,SPK         ; 7
-98  DA                  POP     G2             ; 6
-99  4B 01               SUB     G2,#1          ; 5
-9B  A4 74               JZ      L9             ; 4
-9D  A0 7E               JMP     L10            ; 5
-9F  A0 70       L15     JMP     START          
-A1  00 00 00 00 T28     DS      8              ; COMMENT
-A9  00 00 00 00                                
+02              SIOD    EQU     02H            
+03              SIOS    EQU     03H            
+00  17 00       START   LD      G1,#0          
+02  19 13       L0      LD      G2,DATA,G1     
+04  5B 00               CMP     G2,#0          
+06  A4 12               JZ      END            
+08  C0 03       L1      IN      G0,SIOS        
+0A  63 80               AND     G0,#80H        
+0C  A4 08               JZ      L1             
+0E  37 01               ADD     G1,#1          
+10  A0 02               JMP     L0             
+12  FF          END     HALT                   
+13  73 69 67 65 DATA    DC      73H,69H,67H,65H,6DH,75H,72H,61H,0DH,0AH
+17  6D 75 72 61                                
+1C  0D 0A                                      
+1C  00                  DC      00H            

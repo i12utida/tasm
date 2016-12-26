@@ -80,7 +80,7 @@ _pass1flag
 .L11
 	STRING	"w"
 .L12
-	STRING	"hex.bin"
+	STRING	"test.hex"
 .L13
 	STRING	"w"
 .L14

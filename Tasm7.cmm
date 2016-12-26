@@ -43,7 +43,7 @@ public int main(int argc, char[][] argv){
     if (argc==i+1) {                                /* 引数としてソースファイルがある */
         sourcefp = fopen(argv[i],"r");              /* ソースファイルをオープン */
         listfp = fopen("list.lst","w");              /* リストファイルをオープン */
-        hexfp = fopen("hex.bin","w");         /* バイナリファイルのオープン */
+        hexfp = fopen("test.hex","w");         /* バイナリファイルのオープン */
         if(sourcefp == null){                       // オープン失敗の場合は、
             perror(argv[i]);                        // エラー出力
             return -1 ;
