@@ -57,8 +57,14 @@ public void initMachineCode(){
 /*********** pcaのセッター ***********/
 public void setPca(int lxpca){
    printf("setPca()\n");
-   strCpy(pca,toHex(lxpca));               /* 16進文字列に変換 */
-   pca[2] = '\0';                          /* Hの部分は必要ないので消す */
+   if(lxpca == 1000){                   /* ORGの命令なら(1000をORGに設定) */
+       pca[0] = ' ';
+       pca[1] = ' ';
+   }else{
+       strCpy(pca,toHex(lxpca));        /* 16進文字列に変換 */
+   }
+
+   pca[2] = '\0';                           /* Hの部分は必要ないので消す */
    printf("setPca() pca = *%s*\n",pca);
 }
 /*************************************/
@@ -66,9 +72,8 @@ public void setPca(int lxpca){
 /****************** 第一バイトのセッター *****************/
 public void setFirstByte(int machine_code){
    printf("setFirstByte()\n");
-   printf("setFirstByte() pca = *%s*\n",pca);
    strCpy(first_byte,toHex(machine_code));      /* 16進文字列に変換 */
-   printf("setFirstByte() pca = *%s*\n",pca);
+   printf("setFirstByte() first_byte = *%s*\n",first_byte);
    first_byte[2] = '\0';                        /* Hの部分は必要ないので消す */
 }
 /*********************************************/
@@ -202,11 +207,17 @@ void storeFirstByte(){
     printf(" buflen = *%d*\n",buflen);
 
     int i;
-
-
-    for(i = 0; i < length; i = i+1){   // 入力の文字列の長さまで
-        buf[buflen] = first_byte[i];       // バッファに続けて代入
+    
+    if(length == 0){
+        buf[buflen] = ' ';
         buflen = buflen + 1;
+        buf[buflen] = ' ';
+        buflen = buflen + 1;
+    } else {
+        for(i = 0; i < length; i = i+1){   // 入力の文字列の長さまで
+            buf[buflen] = first_byte[i];       // バッファに続けて代入
+            buflen = buflen + 1;
+        }
     }
     buf[buflen] = ' ';              // 整列させるための空白を入れる
     buf[buflen+1] = '\0';           // 文字列を完成させる
@@ -313,7 +324,7 @@ void storeLabel(){
         buflen = buflen + 1;
     }
 
-    for(i = 0; i < 7-length; i = i+1){
+    for(i = 0; i < 8-length; i = i+1){
         buf[buflen] = ' ';
         buflen = buflen + 1;
     }
