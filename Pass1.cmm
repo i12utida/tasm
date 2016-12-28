@@ -10,6 +10,8 @@
 #include "Util.hmm"
 #include "Error.hmm"
 
+// #define PRINTF
+
 // static変数
 boolean eofflag = false;    /* EOFフラグ */
 int pca;
@@ -35,7 +37,9 @@ public void initPass1(){
 
 public void pass1(FILE sourcefp){
     setLxFp(sourcefp);
-    printf("pass1start\n");
+    #ifdef PRINTF
+        printf("pass1start\n");
+    #endif
     token_id = getToken();                  /* 最初のトークンを取ってくる */
     if(token_id != LxSPC){                  /* ファイルの最初がスペース以外なら */
         str = getLxStr();                   /* Lexicalのstrを取ってくる */
@@ -46,11 +50,9 @@ public void pass1(FILE sourcefp){
         }
     }
     
-    printf("before LxEOL\n");
     ch();
     while(token_id != LxEOF && token_id != LxERR){    /* ファイルの終わりまで */
         while(token_id == LxEOL){              /* 改行なら */
-            printf("First Line getToken()\n");
             token_id = getToken();          /* 次のトークンを取ってくる */
             if(token_id == LxNAM){          /* 行の先頭が空白以外なら */
                 str = getLxStr();           /* Lexicalのstrを取ってくる */
@@ -64,39 +66,31 @@ public void pass1(FILE sourcefp){
             }
         }
 
-        printf("pass1 getToken()\n");
+        //printf("pass1 getToken()\n");
         token_id = getToken();              /* 次のトークンを取ってくる */
-        printf("%d\n",token_id);
 
         if(token_id == LxCOM){
             skipToNewLineOrEOF();
         } 
         
         else if(token_id == LxEQU){       /* EQU命令なら */
-            printf("EQU getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
             address = eqAnalyzer();         /* <式>の解析結果を代入 */
-            printf("after eqAnalyzer token_id = *%d*\n",token_id);
             changeSymAddr(pca,address);     /* ラベルのアドレスを変更 */
             token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする*/
-            printf("setTokenID *%d*\n",token_id);
         } 
         
         else if(token_id == LxORG){
-            printf("ORG getToken()\n");
             getToken();                     /* <式>の部分を取ってくる */
             pca = eqAnalyzer();             /* <式>の解析結果を代入 */
             token_id = getTokenID();        /* 式解析中にtoken_idが変わったのでgetする */
-            printf("setTokenID *%d*\n",token_id);
         } 
         
         else if(token_id == LxDC){        /* DC命令なら */
-            printf("DC\n");
             while(token_id != LxEOL && token_id != LxCOM){
                 token_id = getToken();          /* 次のトークンを取ってくる */
                 if(token_id == LxSTR){          /* <文字列>なら */
                     str = getLxStr();           /* Lexicalのstrを取ってくる */
-                    printf(" DC str = *%s*, pca = *%d*\n",str,pca);
                     pca = pca + strLen(str);    /* strの長さだけpcaを増加 */
                 } else if(token_id == LxNUM){   /* <数値>なら */
                         pca = pca + 1;
@@ -109,7 +103,6 @@ public void pass1(FILE sourcefp){
         } 
         
         else if(token_id == LxDS){
-            printf("DS\n");
             while(token_id != LxEOL && token_id != LxCOM){
                 token_id = getToken();          /* 次のトークンを取ってくる */
                 if(token_id == LxSTR){          /* <文字列>なら */
@@ -121,26 +114,22 @@ public void pass1(FILE sourcefp){
         } 
         
         else if(token_id == LxEOL){
-            printf("End of Line\n");
         } 
         
         else if(token_id == LxEOF){
-            printf("End of File\n");
         } 
         
         else if(0 <= token_id  && token_id < LxRSV_NUM){
-            printf("pca = %d, searchSize(token_id) = %d\n",pca,searchSize(token_id));
             pca = pca + searchSize(token_id);
             skipToNewLineOrEOF();
         } 
         
         else{
-            error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
+            //error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
     }
 
-    printf("pass1() End\n");
 
     printSymTbl();
 }

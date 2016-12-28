@@ -74,7 +74,6 @@ public int searchStyle(int token_id){
             return operationtbl[i].style;               /* 予約語のstyleを返す */
         }
     }
-    printf("NON STYLE\n");
     return -1;                                  /* 一致しなかった場合の返り値 */
 }
 

@@ -1,16 +1,8 @@
-02              SIOD    EQU     02H            
-03              SIOS    EQU     03H            
-00  17 00       START   LD      G1,#0          
-02  19 13       L0      LD      G2,DATA,G1     
-04  5B 00               CMP     G2,#0          
-06  A4 12               JZ      END            
-08  C0 03       L1      IN      G0,SIOS        
-0A  63 80               AND     G0,#80H        
-0C  A4 08               JZ      L1             
-0E  37 01               ADD     G1,#1          
-10  A0 02               JMP     L0             
-12  FF          END     HALT                   
-13  73 69 67 65 DATA    DC      73H,69H,67H,65H,6DH,75H,72H,61H,0DH,0AH
-17  6D 75 72 61                                
-1C  0D 0A                                      
-1C  00                  DC      00H            
+00  91          L0      SHLL    G0             
+01  A8 05               JC      L1             
+03  A0 07               JMP     L2             
+05  30 0A       L1      ADD     G0,ONE         
+07  FF          L2      HALT                   
+08  A0 00               JMP     L0             
+0A  01          ONE     DC      1              
+                                             
