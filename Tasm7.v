@@ -17,32 +17,30 @@ _listfp
 _pass1flag
 	WS	1
 .L1
-	STRING	"使用方法 : %s [-h] [<source file>]\n"
+	BS	32
+.filename
+	DW	.L1
 .L2
-	STRING	"    <source file> is assembly source file\n"
+	STRING	"使用方法 : %s [-h] [<source file>]\n"
 .L3
-	STRING	"    assemble result will be shown Tasm.list \n"
+	STRING	"    <source file> is assembly source file\n"
 .L4
-	STRING	"\n"
+	STRING	"    assemble result will be shown Tasm.list \n"
 .L5
-	STRING	"    -h : show this message\n"
+	STRING	"\n"
 .L6
+	STRING	"    -h : show this message\n"
+.L7
 	STRING	"\n"
 .usage
 	ENTRY	0
 	LDP	1
 	ARG
-	LDC	.L1
-	ARG
-	LDG	_stderr
-	ARG
-	CALLF	3,_fprintf
-	POP
 	LDC	.L2
 	ARG
 	LDG	_stderr
 	ARG
-	CALLF	2,_fprintf
+	CALLF	3,_fprintf
 	POP
 	LDC	.L3
 	ARG
@@ -68,59 +66,41 @@ _pass1flag
 	ARG
 	CALLF	2,_fprintf
 	POP
-	RET
-.L7
-	STRING	"/bin/rm.exe"
-.L8
-	STRING	"list.lst"
-.L9
-	STRING	"/bin/rm.exe"
-.L10
-	STRING	"mcode/binary.hex"
-.L11
-	STRING	"引数が足りていません"
-.L12
-	STRING	"-h"
-.L13
-	STRING	"r"
-.L14
-	STRING	"list.lst"
-.L15
-	STRING	"w"
-.L16
-	STRING	"mcode/binary.hex"
-.L17
-	STRING	"w"
-.L18
-	STRING	"list.lst"
-.L19
-	STRING	"binary.hex"
-.L20
-	STRING	"引数が多すぎます"
-.L21
-	STRING	"r"
-_main
-	ENTRY	1
-	LDC	.L8
-	ARG
 	LDC	.L7
 	ARG
-	CALLF	2,_exec
-	POP
-	LDC	.L10
+	LDG	_stderr
 	ARG
-	LDC	.L9
-	ARG
-	CALLF	2,_exec
+	CALLF	2,_fprintf
 	POP
+	RET
+.L8
+	STRING	"引数が足りていません"
+.L9
+	STRING	"-h"
+.L10
+	STRING	"file name is too long"
+.L11
+	STRING	"r"
+.L12
+	STRING	"%s\n"
+.L13
+	STRING	"w"
+.L14
+	STRING	"w"
+.L15
+	STRING	"引数が多すぎます"
+.L16
+	STRING	"r"
+_main
+	ENTRY	3
 	LDC	1
 	STL	1
 	POP
 	LDP	1
 	LDL	1
 	EQ
-	JF	.L22
-	LDC	.L11
+	JF	.L17
+	LDC	.L8
 	ARG
 	CALLP	1,_error
 	LDC	65524
@@ -128,13 +108,13 @@ _main
 	CALLP	1,_exit
 	LDC	65535
 	MREG
-	JMP	.L23
-.L22
+	JMP	.L18
+.L17
 	LDP	1
 	LDL	1
 	GT
-	JF	.L24
-	LDC	.L12
+	JF	.L19
+	LDC	.L9
 	ARG
 	LDP	2
 	LDL	1
@@ -143,7 +123,7 @@ _main
 	CALLF	2,_strCmp
 	LDC	0
 	EQ
-	JF	.L24
+	JF	.L19
 	LDP	2
 	LDC	0
 	LDW
@@ -151,15 +131,64 @@ _main
 	CALLP	1,.usage
 	LDC	0
 	MREG
-	JMP	.L23
-.L24
+	JMP	.L18
+.L19
+	LDP	2
+	LDL	1
+	LDW
+	ARG
+	CALLF	1,_strLen
+	STL	3
+	POP
+	LDL	3
+	LDC	30
+	LE
+	JF	.L20
+	LDP	2
+	LDL	1
+	LDW
+	ARG
+	LDG	.filename
+	ARG
+	CALLF	2,_strCpy
+	POP
+	JMP	.L21
+.L20
+	LDC	.L10
+	ARG
+	CALLP	1,_error
+.L21
 	LDL	1
 	LDC	1
 	ADD
 	LDP	1
 	EQ
-	JF	.L25
-	LDC	.L13
+	JF	.L22
+	LDG	.filename
+	LDL	3
+	LDC	65533
+	ADD
+	LDB
+	LDC	46
+	EQ
+	JF	.L23
+	LDG	.filename
+	LDL	3
+	LDC	65534
+	ADD
+	LDB
+	LDC	116
+	EQ
+	JF	.L23
+	LDG	.filename
+	LDL	3
+	LDC	65535
+	ADD
+	LDB
+	LDC	55
+	EQ
+	JF	.L23
+	LDC	.L11
 	ARG
 	LDP	2
 	LDL	1
@@ -168,24 +197,10 @@ _main
 	CALLF	2,_fopen
 	STG	_sourcefp
 	POP
-	LDC	.L15
-	ARG
-	LDC	.L14
-	ARG
-	CALLF	2,_fopen
-	STG	_listfp
-	POP
-	LDC	.L17
-	ARG
-	LDC	.L16
-	ARG
-	CALLF	2,_fopen
-	STG	_hexfp
-	POP
 	LDG	_sourcefp
 	LDC	0
 	EQ
-	JF	.L26
+	JF	.L24
 	LDP	2
 	LDL	1
 	LDW
@@ -193,42 +208,122 @@ _main
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L23
-.L26
+	JMP	.L18
+.L24
+	JMP	.L25
+.L23
+	LDP	2
+	LDC	0
+	LDW
+	ARG
+	CALLP	1,.usage
+.L25
+	LDC	108
+	LDG	.filename
+	LDL	3
+	LDC	65534
+	ADD
+	STB
+	POP
+	LDC	115
+	LDG	.filename
+	LDL	3
+	LDC	65535
+	ADD
+	STB
+	POP
+	LDC	116
+	LDG	.filename
+	LDL	3
+	STB
+	POP
+	LDC	0
+	LDG	.filename
+	LDL	3
+	LDC	1
+	ADD
+	STB
+	POP
+	LDG	.filename
+	ARG
+	LDC	.L12
+	ARG
+	CALLF	2,_printf
+	POP
+	LDC	.L13
+	ARG
+	LDG	.filename
+	ARG
+	CALLF	2,_fopen
+	STG	_listfp
+	POP
 	LDG	_listfp
 	LDC	0
 	EQ
-	JF	.L27
-	LDC	.L18
+	JF	.L26
+	LDG	.filename
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L23
-.L27
+	JMP	.L18
+.L26
+	LDC	98
+	LDG	.filename
+	LDL	3
+	LDC	65534
+	ADD
+	STB
+	POP
+	LDC	105
+	LDG	.filename
+	LDL	3
+	LDC	65535
+	ADD
+	STB
+	POP
+	LDC	110
+	LDG	.filename
+	LDL	3
+	STB
+	POP
+	LDC	0
+	LDG	.filename
+	LDL	3
+	LDC	1
+	ADD
+	STB
+	POP
+	LDC	.L14
+	ARG
+	LDG	.filename
+	ARG
+	CALLF	2,_fopen
+	STG	_hexfp
+	POP
 	LDG	_hexfp
 	LDC	0
 	EQ
-	JF	.L28
-	LDC	.L19
+	JF	.L27
+	LDG	.filename
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L23
-.L28
-.L25
+	JMP	.L18
+.L27
+.L22
 	LDP	1
 	LDC	2
 	GT
-	JF	.L29
-	LDC	.L20
+	JF	.L28
+	LDC	.L15
 	ARG
 	CALLP	1,_error
 	LDC	65535
 	MREG
-	JMP	.L23
-.L29
+	JMP	.L18
+.L28
 	CALLP	0,_initPass1
 	LDG	_sourcefp
 	ARG
@@ -237,7 +332,7 @@ _main
 	ARG
 	CALLF	1,_fclose
 	POP
-	LDC	.L21
+	LDC	.L16
 	ARG
 	LDP	2
 	LDC	1
@@ -264,5 +359,5 @@ _main
 	POP
 	LDC	0
 	MREG
-.L23
+.L18
 	RET
