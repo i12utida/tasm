@@ -23,9 +23,7 @@ char[] filename = array(FLENGTH + 1);    /* .lstと.binと後で出力するた�
 
 // 使い方表示関数
 void usage(char[] name) {
-    fprintf(stderr, "使用方法 : %s [-h] [<source file>]\n",name);
-    fprintf(stderr, "    <source file> is assembly source file\n");
-    fprintf(stderr, "    assemble result will be shown Tasm.list \n");
+    fprintf(stderr, "usage: %s [-h] [<source file>]\n",name);
     fprintf(stderr, "\n");
     fprintf(stderr, "    -h : show this message\n");
     fprintf(stderr, "\n");
@@ -51,6 +49,7 @@ public int main(int argc, char[][] argv){
         strCpy(filename,argv[i]);
     } else{
         error("file name is too long");
+        exit(1);
     }
 
     if (argc==i+1) {                                /* 引数としてソースファイルがある */
