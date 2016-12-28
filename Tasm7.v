@@ -10,13 +10,11 @@ _errno
 	WS	1
 _sourcefp
 	WS	1
-_binaryfp
+_hexfp
 	WS	1
 _listfp
 	WS	1
 _pass1flag
-	WS	1
-_pass2flag
 	WS	1
 .L1
 	STRING	"使用方法 : %s [-h] [<source file>]\n"
@@ -72,35 +70,57 @@ _pass2flag
 	POP
 	RET
 .L7
-	STRING	"引数が足りていません"
+	STRING	"/bin/rm.exe"
 .L8
-	STRING	"-h"
-.L9
-	STRING	"r"
-.L10
 	STRING	"list.lst"
+.L9
+	STRING	"/bin/rm.exe"
+.L10
+	STRING	"mcode/binary.hex"
 .L11
-	STRING	"w"
+	STRING	"引数が足りていません"
 .L12
-	STRING	"binary.bin"
+	STRING	"-h"
 .L13
-	STRING	"w"
+	STRING	"r"
 .L14
 	STRING	"list.lst"
 .L15
-	STRING	"binary.bin"
+	STRING	"w"
 .L16
+	STRING	"mcode/binary.hex"
+.L17
+	STRING	"w"
+.L18
+	STRING	"list.lst"
+.L19
+	STRING	"binary.hex"
+.L20
 	STRING	"引数が多すぎます"
+.L21
+	STRING	"r"
 _main
 	ENTRY	1
+	LDC	.L8
+	ARG
+	LDC	.L7
+	ARG
+	CALLF	2,_exec
+	POP
+	LDC	.L10
+	ARG
+	LDC	.L9
+	ARG
+	CALLF	2,_exec
+	POP
 	LDC	1
 	STL	1
 	POP
 	LDP	1
 	LDL	1
 	EQ
-	JF	.L17
-	LDC	.L7
+	JF	.L22
+	LDC	.L11
 	ARG
 	CALLP	1,_error
 	LDC	65524
@@ -108,13 +128,13 @@ _main
 	CALLP	1,_exit
 	LDC	65535
 	MREG
-	JMP	.L18
-.L17
+	JMP	.L23
+.L22
 	LDP	1
 	LDL	1
 	GT
-	JF	.L19
-	LDC	.L8
+	JF	.L24
+	LDC	.L12
 	ARG
 	LDP	2
 	LDL	1
@@ -123,7 +143,7 @@ _main
 	CALLF	2,_strCmp
 	LDC	0
 	EQ
-	JF	.L19
+	JF	.L24
 	LDP	2
 	LDC	0
 	LDW
@@ -131,15 +151,15 @@ _main
 	CALLP	1,.usage
 	LDC	0
 	MREG
-	JMP	.L18
-.L19
+	JMP	.L23
+.L24
 	LDL	1
 	LDC	1
 	ADD
 	LDP	1
 	EQ
-	JF	.L20
-	LDC	.L9
+	JF	.L25
+	LDC	.L13
 	ARG
 	LDP	2
 	LDL	1
@@ -148,24 +168,24 @@ _main
 	CALLF	2,_fopen
 	STG	_sourcefp
 	POP
-	LDC	.L11
+	LDC	.L15
 	ARG
-	LDC	.L10
+	LDC	.L14
 	ARG
 	CALLF	2,_fopen
 	STG	_listfp
 	POP
-	LDC	.L13
+	LDC	.L17
 	ARG
-	LDC	.L12
+	LDC	.L16
 	ARG
 	CALLF	2,_fopen
-	STG	_binaryfp
+	STG	_hexfp
 	POP
 	LDG	_sourcefp
 	LDC	0
 	EQ
-	JF	.L21
+	JF	.L26
 	LDP	2
 	LDL	1
 	LDW
@@ -173,42 +193,42 @@ _main
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L21
+	JMP	.L23
+.L26
 	LDG	_listfp
 	LDC	0
 	EQ
-	JF	.L22
-	LDC	.L14
+	JF	.L27
+	LDC	.L18
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L22
-	LDG	_binaryfp
+	JMP	.L23
+.L27
+	LDG	_hexfp
 	LDC	0
 	EQ
-	JF	.L23
-	LDC	.L15
+	JF	.L28
+	LDC	.L19
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L18
-.L23
-.L20
+	JMP	.L23
+.L28
+.L25
 	LDP	1
 	LDC	2
 	GT
-	JF	.L24
-	LDC	.L16
+	JF	.L29
+	LDC	.L20
 	ARG
 	CALLP	1,_error
 	LDC	65535
 	MREG
-	JMP	.L18
-.L24
+	JMP	.L23
+.L29
 	CALLP	0,_initPass1
 	LDG	_sourcefp
 	ARG
@@ -217,15 +237,32 @@ _main
 	ARG
 	CALLF	1,_fclose
 	POP
+	LDC	.L21
+	ARG
+	LDP	2
+	LDC	1
+	LDW
+	ARG
+	CALLF	2,_fopen
+	STG	_sourcefp
+	POP
+	CALLP	0,_initPass2
+	LDG	_hexfp
+	ARG
+	LDG	_listfp
+	ARG
+	LDG	_sourcefp
+	ARG
+	CALLP	3,_pass2
 	LDG	_listfp
 	ARG
 	CALLF	1,_fclose
 	POP
-	LDG	_binaryfp
+	LDG	_hexfp
 	ARG
 	CALLF	1,_fclose
 	POP
 	LDC	0
 	MREG
-.L18
+.L23
 	RET

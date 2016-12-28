@@ -17,9 +17,9 @@ public void initSymTbl(){
 }
 
 public void printSymTbl(){
+    //printf("printSymTbl()\n");
     int i;
     for(i = 0; i < label_cnt; i = i+1){
-        printf(" label_address = %d, label_name = %s\n",label_address[i],label[i]);
     }
 }
 /*
@@ -34,12 +34,12 @@ public void asignLabel(int pca, char[] str){
             break;                              /* ラベル登録終了 */
         } 
     }
-    printf("Label registrated label_name=*%s*, label_address=*%d*\n",label[label_cnt],label_address[label_cnt]);
     label_cnt = label_cnt+1;                    /* ラベルの個数を増やす */
 }
 
 /******** ラベルのアドレスを返す関数 *********/
 public int getLabelAddr(char[] str){
+    //printf("getLabelAddress() *%s*\n",str);
     int address = -1;
 
     int i;
@@ -55,12 +55,11 @@ public int getLabelAddr(char[] str){
 
 /******** ラベルのアドレスを変更する関数 **********/
 public void changeSymAddr(int pca, int address){
-    printf("pca = *%d*, address = *%d*\n",pca,address);
     int i;
     for(i=0;i<=label_cnt;i=i+1){                 /* 登録されているラベルの個数まで */
         if(label_address[i] == pca){            /* ラベルのアドレスを検索 */
             label_address[i] = address;         /* ラベルのアドレスを変更 */
-    printf("Label address changed label_name=*%s*, label_address=*%d*\n",label[i],label_address[i]);
+    //printf("Label address changed label_name=*%s*, label_address=*%d*\n",label[i],label_address[i]);
             break;
         }
     }

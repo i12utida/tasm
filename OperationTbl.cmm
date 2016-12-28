@@ -39,7 +39,7 @@ public OperationTbl[] operationtbl = {
 { LxEQU,	0,		0xFF,		7		}, 
 { LxORG,	0,		0xFF,		7		},
 { LxDS,		0,		0xFF,		7		}, 
-{ LxDC,		1,		0xFF,		8		}
+{ LxDC,		0,		0xFF,		8		}
 };
 
 public int searchSize(int token_id){
@@ -74,7 +74,6 @@ public int searchStyle(int token_id){
             return operationtbl[i].style;               /* 予約語のstyleを返す */
         }
     }
-
     return -1;                                  /* 一致しなかった場合の返り値 */
 }
 

@@ -168,7 +168,6 @@ int getDec() {
     int val = 0;                                   // 初期値は 0
     int i;
     int len = strLen(str);                           // strの長さを求める
-    printf("str = *%s*\n",str);
 
     for(i = 0; isDigit(str[i]) == true && i < len; i = i+1){
         val = val*10 + ord(str[i]) - ord('0');             // 値を計算
@@ -181,12 +180,9 @@ public int getDigit() {
     int val = 0;
     int len = strLen(str);
     
-    printf("getDigit()  str = *%s*\n",str);
     if(str[len - 1] == 'H'){
-        printf("getHex実行\n");
             val = getHex();                             // 16進数の読み込み
     } else{                                             // それ以外は10進のはず
-        printf("getDec()実行\n");
         val = getDec();                                 // 10進数を読み込む
     }
   
@@ -199,9 +195,16 @@ void getString(){
     str[0] = ch;            /* strに頭文字を記憶*/
     int i;                  /* strの添字用変数を宣言 */
 
-    for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* chが英字もしくは数字なら */
-        getCh();            /* 次の文字を取ってくる */
-        str[i] = ch;        /* chをstrに記憶 */
+    if(token_id == LxCOM){      /* コメントの場合は */
+         for(i = 1; nextch != '\n'; i = i+1){   /* nextchが改行以外なら*/
+            getCh();            /* 次の文字を取ってくる */
+            str[i] = ch;        /* chをstrに記憶 */
+        }
+    } else{                     /* そうでない場合は */
+        for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* nextchが英字もしくは数字なら */
+            getCh();            /* 次の文字を取ってくる */
+            str[i] = ch;        /* chをstrに記憶 */
+        }
     }
 
     str[i] = '\0';
@@ -215,10 +218,8 @@ int getWord(){
     token_id = searchRsvWord(str);      /* トークンが予約語と一致するか確認 */
     
     if(0 <= token_id && token_id < LxRSV_NUM){    /* token_idが予約語なら */
-        printf("RSVWORD\n");
         return token_id;                                 /* token_idを返す */
     } else if(LxG0 <= token_id && token_id <= LxSP){
-        printf("REGISTER\n");
         return token_id;
     } else {                                             /* token_idが予約語以外なら */
         return LxNAM;                                    /* ラベルであることを返す */
@@ -229,17 +230,15 @@ int getWord(){
 
 /********* ラベルの有無を返す **********/
 public boolean getLabel(){
-    printf("start getLabel()\n");
+    //printf("start getLabel()\n");
     if( ch == '\0'){    /* まだ一度も文字を取ってきていない場合は */
         getCh();        /* chにはnextchの改行をnextchには文字の先頭を取ってくる */
     }
 
     if(ch == '\n' && nextch == ' '){        /* 行頭が空白なら */
-        printf("label = false\n");
         label = false;
         return label;                       /* ラベルなしなのでfalse */
     } else if(ch == '\n' && isAlpha(nextch)){  /* 行頭がアルファベットなら */
-        printf("label = true\n");
         label = true;
         return label;                        /* ラベルがあるのでtrue */
     } else{                                 /* それ以外なら */
@@ -258,63 +257,52 @@ public int getToken(){
     }
 
     getCh();
-    printf("ch == *%c*, nextch = *%c*\n",ch,nextch);
 
-    if(ch == ' '){
+    if(ch == ' ' || ch == '\t'){
         token_id = LxSPC;
-    } else if(ch == '"'){                  /* 文字列であるなら */
-    printf("STRING\n");
-        token_id = LxSTR;          /* トークン番号(文字列)を設定 */
-    } else if(ch == '\''){           /* 文字定数であるなら */
-    printf("NUMBER\n");
+    } else if(ch == '"'){           /* 文字列であるなら */
+        getCh();                    /* 最初のダブルクウォートを飛ばす */
+        getString();                /* strに文字列を格納 */
+        getCh();                    /* 終わりのダブルクウォートを飛ばす */
+        token_id = LxSTR;           /* トークン番号(文字列)を設定 */
+    } else if(ch == '\''){          /* 文字定数であるなら */
+        getCh();                    /* 最初のシングルクウォートを飛ばす */
+        getString();                /* strに文字を格納 */
+        getCh();                    /* 終わりのシングルクウォートを飛ばす */
         token_id = LxNUM;           /* トークン番号(数値)を設定 */
     } else if(ch == '\n'){          /* 改行であるなら */
-    printf("EOL\n");
         token_id = LxEOL;           /* トークン番号(改行)を返す */
         return LxEOL;               /* 改行だけはスペースを飛ばさないまま返す */
     } else if(ch == EOF){           /* EOFなら */
-    printf("EOF\n");
-        token_id = LxEOF;               /* トークン番号(EOF)を設定 */
+        token_id = LxEOF;           /* トークン番号(EOF)を設定 */
     } else if(ch == '('){           /* 左括弧なら */
-    printf("LBR\n");
         token_id = LxLBR;
     } else if(ch == ')'){           /* 右括弧なら */
-    printf("RBR\n");
         token_id = LxRBR;
     } else if(ch == ','){           /* カンマなら */
-    printf("COMMA\n");
-        token_id = LxCMM;         /* トークン番号(カンマ)を設定 */
+        token_id = LxCMM;           /* トークン番号(カンマ)を設定 */
     } else if(ch == ';'){           /* セミコロンなら */
-    printf("COMMENT\n");
-        token_id = LxCOM;        /* トークン番号(セミコロン)を設定 */
+        token_id = LxCOM;           /* トークン番号(セミコロン)を設定 */
+        getString();
     } else if(ch == '+'){           /* プラスなら */
-    printf("PLUS\n");
-        token_id = LxPLS;          /* トークン番号(プラス)を設定 */
+        token_id = LxPLS;           /* トークン番号(プラス)を設定 */
     } else if(ch == '-'){           /* マイナスなら */
-    printf("MINUS\n");
-        token_id = LxMNS;         /* トークン番号(マイナス)を設定 */
+        token_id = LxMNS;           /* トークン番号(マイナス)を設定 */
     } else if(ch == '*'){           /* 乗算なら */
-    printf("MULTIPUL\n");
-        token_id = LxMUL;      /* トークン番号(乗算)を設定 */
+        token_id = LxMUL;           /* トークン番号(乗算)を設定 */
     } else if(ch == '/'){           /* 除算なら */
-    printf("DIVIDE\n");
-        token_id = LxDIV;        /* トークン番号(除算)を設定 */
+        token_id = LxDIV;           /* トークン番号(除算)を設定 */
     } else if(ch == '#'){           /* イミディエイトなら */
-    printf("IMM\n");
-        token_id = LxIMM;         /* トークン番号(イミディエイト)を設定 */
+        token_id = LxIMM;           /* トークン番号(イミディエイト)を設定 */
     } else if(isAlpha(ch)){         /* chがアルファベットなら */
         token_id = getWord();       /* トークン番号(予約語かラベル)を返す */
     } else if(isDigit(ch)){         /* 数値であるなら */
-    printf("NUMBER\n");
         getString();
-        printf("ch = *%c*, nextch = *%c*\n",ch,nextch);
         token_id = LxNUM;         /* トークン番号(数値)を設定 */
     } else{                         /* エラーなら */
-        printf("undefined token number!!\n");          /* エラー */
         token_id = -1;              // とりあえず終了するために代用
     }
     
-    printf("token_id = %d, str = %s\n",token_id,str);
     skipSpaces();
     return token_id;                /* トークン番号を返す */
 }

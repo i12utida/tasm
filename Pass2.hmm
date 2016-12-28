@@ -1,3 +1,6 @@
-public void initializePass2();
-public boolean pass2();
-public boolean pass2flag;
+#ifndef PASS2_H
+
+public void initPass2();
+public void pass2(FILE sourcefp, FILE listfp, FILE hexfp);
+
+#endif  /* PASS2_H */
