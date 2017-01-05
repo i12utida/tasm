@@ -6,6 +6,8 @@
 #include "Editor.hmm"
 #include "Util.hmm"
 
+#define UNIX
+
 /**** static 変数 ****/
 FILE listfp;
 FILE hexfp;
@@ -418,15 +420,19 @@ public void printBuffer(){
    buf[buflen] = '\n';
    buf[buflen+1] = '\0';
 
+    #ifdef UNIX
+        printf("Buffer     *%s*\n",buf);
+    #endif
+
    fputs(buf,listfp);                  // リストファイルに出力
 }
 /***************************************************************************/
 
 /************** 16進ファイルに出力 *****************************************/
 public void printHex(){
-    int i;
+    int i;                              /* プログラムの番地を記憶する変数 */
 
-    for(i = 0; i < cnt; i = i+1){        /* 機械語の個数分繰り返す */
+    for(i = 0; i < cnt; i = i+1){       /* 機械語の個数分繰り返す */
         //fputc(chr(machine_code[i]), hexfp);
         
        strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
@@ -435,12 +441,10 @@ public void printHex(){
         
     }
 
-    printf("cnt = *%d*  i = *%d*\n",cnt,i);
-    while(i <= 0xda + 2){
-        fputs("00",hexfp);
-        i = i+1;
+    while(i <= 0xda + 2){               /* TeCで使える領域は0xDA番地なので */
+        fputs("00",hexfp);                  /* プログラム長以外の番地は0x00で埋める */
+        i = i+1;                            /* 次の番地へ移動 */
     }
-    printf("i = *%x* i = *%d*\n",i,i);
 }
 
 /***************************************************************************/

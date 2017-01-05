@@ -19,6 +19,8 @@
 #include "Error.hmm"
 #include "Editor.hmm"
 
+#define UNIX
+
 // static変数
 boolean eofflag = false;    /* EOFフラグ */
 int pca;
@@ -60,8 +62,11 @@ void expantion(){
         }
         setOpr("\"");
         setOpr(str);
-	    token_id = getToken();          /* ダブルクウォートがくるはず */
+        setOpr("\"");
         token_id = getToken();          /* カンマ、改行、コメントがくる */
+        #ifdef UNIX
+            printf("expansion token_id = *%d*\n",token_id);
+        #endif
     } else if(token_id != LxEOL && token_id != LxEOF){
         byte[cnt] = eqAnalyzer();
         cnt = cnt + 1;
@@ -171,6 +176,7 @@ void ORG(){
     setPca(1000);                       /* ORGの場合Pcaは空白なので空白をセット */
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
     value = eqAnalyzer();               /* 式の解析を行い結果を取ってくる */
+    token_id = getTokenID();            /* 現在のトークン番号を取ってくる */
     while(pca < value){                 /* 式の値まで */
         setMachineCode(0);                  /* 16進ファイルの機械語を0で埋める */
         pca = pca + 1;                      /* pcaをカウントアップ */
@@ -589,14 +595,19 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
             token_id = LxERR;                   /* トークンをエラーにセット */
         }
     }
-    
-    ch();
-    while(token_id != LxEOF && token_id != LxERR){  /* ファイルの終わりまで */
 
+        while(token_id != LxEOF && token_id != LxERR){  /* ファイルの終わりまで */
+        #ifdef UNIX
+            printf("before function of start line   token_id = *%d*\n",token_id);
+        #endif
         /**************** 行頭の処理 ****************/
         if(token_id == LxEOL){              /* 行末なら */
             token_id = getToken();          /* 次のトークンを取ってくる */
-            if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
+            #ifdef UNIX
+                printf("start of line\n");
+                ch();
+            #endif
+           if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
                 str = getLxStr();                   /* Lexicalのstrを取ってくる */
                 setLabel(str);
             } else if(token_id == LxCOM){       /* 行頭がコメントなら */
@@ -610,15 +621,21 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
         /*********************************************/
 
         token_id = getToken();              /* 次のトークンを取ってくる */
+        #ifdef UNIX
+            printf("not line token_id = %d\n",token_id);
+            ch();
+        #endif
 
-        if(token_id == LxCOM){                              /* コメントなら */
+        if(token_id == LxCOM){                              /* コメントのみの行なら */
             str = getLxStr();                                   /* Lexicalのstrを取ってくる */
             setComment(str);                                    /* リストのコメントにセット */
+            printBuffer();
+            initBuffers();
         } else if(0 <= token_id && token_id < LxRSV_NUM){    /* 予約語なら */
             styleAnalyzer();                                    /* スタイルの確定とそれぞれのスタイルの処理 */
         } else if(token_id == LxEOL){
         } else{
-            //error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
+            error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
 
