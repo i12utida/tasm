@@ -1,0 +1,8 @@
+00  91          L0      SHLL    G0             
+01  A8 05               JC      L1             
+03  A0 07               JMP     L2             
+05  30 0A       L1      ADD     G0,ONE         
+07  FF          L2      HALT                   
+08  A0 00               JMP     L0             
+0A  01          ONE     DC      1              
+                                             
