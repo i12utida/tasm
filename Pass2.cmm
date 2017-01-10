@@ -634,6 +634,8 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
         } else if(0 <= token_id && token_id < LxRSV_NUM){    /* 予約語なら */
             styleAnalyzer();                                    /* スタイルの確定とそれぞれのスタイルの処理 */
         } else if(token_id == LxEOL){
+        } else if(token_id == LxEOF){
+            break;
         } else{
             error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }

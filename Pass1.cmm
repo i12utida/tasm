@@ -125,7 +125,7 @@ public void pass1(FILE sourcefp){
         } 
         
         else{
-            //error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
+            error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
     }
