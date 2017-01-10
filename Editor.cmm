@@ -432,6 +432,7 @@ public void printBuffer(){
 public void printHex(){
     int i;                              /* プログラムの番地を記憶する変数 */
 
+<<<<<<< HEAD
     for(i = 0; i < cnt; i = i+1){       /* 機械語の個数分繰り返す */
         //fputc(chr(machine_code[i]), hexfp);
         
@@ -444,6 +445,21 @@ public void printHex(){
     while(i <= 0xda + 2){               /* TeCで使える領域は0xDA番地なので */
         fputs("00",hexfp);                  /* プログラム長以外の番地は0x00で埋める */
         i = i+1;                            /* 次の番地へ移動 */
+=======
+    for(i = 0; i < cnt; i = i+1){        /* 機械語の個数分繰り返す */
+        fputc(chr(machine_code[i]), hexfp);
+    
+       //strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
+        //str[2] = '\0';                  /* 'H'を取り除く */
+        //fputs(str,hexfp);               /* 16進ファイルに出力 */
+        
+    }
+
+    while(i <= 0xda + 2){
+        fputc(chr(0),hexfp);
+        // fputs("00",hexfp);
+        i = i+1;
+>>>>>>> function-adder
     }
 }
 
