@@ -427,20 +427,19 @@ public void printHex(){
     int i;
 
     for(i = 0; i < cnt; i = i+1){        /* 機械語の個数分繰り返す */
-        //fputc(chr(machine_code[i]), hexfp);
-        
-       strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
-        str[2] = '\0';                  /* 'H'を取り除く */
-        fputs(str,hexfp);               /* 16進ファイルに出力 */
+        fputc(chr(machine_code[i]), hexfp);
+    
+       //strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
+        //str[2] = '\0';                  /* 'H'を取り除く */
+        //fputs(str,hexfp);               /* 16進ファイルに出力 */
         
     }
 
-    printf("cnt = *%d*  i = *%d*\n",cnt,i);
     while(i <= 0xda + 2){
-        fputs("00",hexfp);
+        fputc(chr(0),hexfp);
+        // fputs("00",hexfp);
         i = i+1;
     }
-    printf("i = *%x* i = *%d*\n",i,i);
 }
 
 /***************************************************************************/
