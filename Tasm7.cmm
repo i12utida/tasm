@@ -7,7 +7,6 @@
 #include "Error.hmm"
 #include "Pass1.hmm"
 #include "Pass2.hmm"
-#include "Test.hmm"
 
 #define FLENGTH 31  /* ファイル名は最大30文字 */
 #define UNIX
@@ -67,7 +66,6 @@ public int main(int argc, char[][] argv){
         filename[flength - 1] = 's';
         filename[flength] = 't';
         filename[flength + 1] = '\0';
-        printf("%s\n",filename);
 
         #ifdef TAC
             exec("bin/rm.exe",filename);

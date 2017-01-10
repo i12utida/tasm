@@ -19,7 +19,7 @@
 #include "Error.hmm"
 #include "Editor.hmm"
 
-#define UNIX
+//#define UNIX
 
 // static変数
 boolean eofflag = false;    /* EOFフラグ */

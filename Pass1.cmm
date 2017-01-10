@@ -50,7 +50,6 @@ public void pass1(FILE sourcefp){
         }
     }
     
-    ch();
     while(token_id != LxEOF && token_id != LxERR){    /* ファイルの終わりまで */
         while(token_id == LxEOL){              /* 改行なら */
             token_id = getToken();          /* 次のトークンを取ってくる */
