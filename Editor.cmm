@@ -143,7 +143,6 @@ public void setComment(char[] string){
    }
 
     comment[i] = '\0';
-
 }
 
 /******************* 機械語のセッター ***********************/
@@ -373,11 +372,11 @@ void storeComment(){
     int length = strLen(comment);     /* 入力文字列の長さを格納*/
 
     int i;
-
     for(i = 0; i < length; i = i+1){
         buf[buflen] = comment[i];
         buflen = buflen + 1;
     }
+
     buf[buflen] = '\0';
 
 }
@@ -427,6 +426,27 @@ public void printBuffer(){
    fputs(buf,listfp);                  // リストファイルに出力
 }
 /***************************************************************************/
+
+/************** コメントのみの行の出力 ****************************/
+public void printComment(){
+    int buflen = 16;
+    int length = strLen(comment);     /* 入力文字列の長さを格納*/
+    int i = 0;
+    while(i < buflen){
+        buf[i] = ' ';
+        i = i+1;
+    }
+
+    for(i = 0; i < length; i = i+1){
+        buf[buflen] = comment[i];
+        buflen = buflen + 1;
+    }
+
+    buf[buflen] = '\n';
+    buf[buflen+1] = '\0';
+
+    fputs(buf,listfp);
+}
 
 /************** 16進ファイルに出力 *****************************************/
 public void printHex(){

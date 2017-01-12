@@ -629,7 +629,7 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
         if(token_id == LxCOM){                              /* コメントのみの行なら */
             str = getLxStr();                                   /* Lexicalのstrを取ってくる */
             setComment(str);                                    /* リストのコメントにセット */
-            printBuffer();
+            printComment();
             initBuffers();
         } else if(0 <= token_id && token_id < LxRSV_NUM){    /* 予約語なら */
             styleAnalyzer();                                    /* スタイルの確定とそれぞれのスタイルの処理 */
