@@ -66,14 +66,12 @@ _pass1flag
 .L9
 	STRING	"r"
 .L10
-	STRING	"%s\n"
+	STRING	"w"
 .L11
 	STRING	"w"
 .L12
-	STRING	"w"
-.L13
 	STRING	"引数が多すぎます"
-.L14
+.L13
 	STRING	"r"
 _main
 	ENTRY	3
@@ -83,7 +81,7 @@ _main
 	LDP	1
 	LDL	1
 	EQ
-	JF	.L15
+	JF	.L14
 	LDC	.L6
 	ARG
 	CALLP	1,_error
@@ -92,12 +90,12 @@ _main
 	CALLP	1,_exit
 	LDC	65535
 	MREG
-	JMP	.L16
-.L15
+	JMP	.L15
+.L14
 	LDP	1
 	LDL	1
 	GT
-	JF	.L17
+	JF	.L16
 	LDC	.L7
 	ARG
 	LDP	2
@@ -107,7 +105,7 @@ _main
 	CALLF	2,_strCmp
 	LDC	0
 	EQ
-	JF	.L17
+	JF	.L16
 	LDP	2
 	LDC	0
 	LDW
@@ -115,8 +113,8 @@ _main
 	CALLP	1,.usage
 	LDC	0
 	MREG
-	JMP	.L16
-.L17
+	JMP	.L15
+.L16
 	LDP	2
 	LDL	1
 	LDW
@@ -127,7 +125,7 @@ _main
 	LDL	3
 	LDC	30
 	LE
-	JF	.L18
+	JF	.L17
 	LDP	2
 	LDL	1
 	LDW
@@ -136,21 +134,21 @@ _main
 	ARG
 	CALLF	2,_strCpy
 	POP
-	JMP	.L19
-.L18
+	JMP	.L18
+.L17
 	LDC	.L8
 	ARG
 	CALLP	1,_error
 	LDC	1
 	ARG
 	CALLP	1,_exit
-.L19
+.L18
 	LDL	1
 	LDC	1
 	ADD
 	LDP	1
 	EQ
-	JF	.L20
+	JF	.L19
 	LDG	.filename
 	LDL	3
 	LDC	65533
@@ -158,7 +156,7 @@ _main
 	LDB
 	LDC	46
 	EQ
-	JF	.L21
+	JF	.L20
 	LDG	.filename
 	LDL	3
 	LDC	65534
@@ -166,7 +164,7 @@ _main
 	LDB
 	LDC	116
 	EQ
-	JF	.L21
+	JF	.L20
 	LDG	.filename
 	LDL	3
 	LDC	65535
@@ -174,7 +172,7 @@ _main
 	LDB
 	LDC	55
 	EQ
-	JF	.L21
+	JF	.L20
 	LDC	.L9
 	ARG
 	LDP	2
@@ -187,7 +185,7 @@ _main
 	LDG	_sourcefp
 	LDC	0
 	EQ
-	JF	.L22
+	JF	.L21
 	LDP	2
 	LDL	1
 	LDW
@@ -195,16 +193,16 @@ _main
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L16
-.L22
-	JMP	.L23
+	JMP	.L15
 .L21
+	JMP	.L22
+.L20
 	LDP	2
 	LDC	0
 	LDW
 	ARG
 	CALLP	1,.usage
-.L23
+.L22
 	LDC	108
 	LDG	.filename
 	LDL	3
@@ -231,13 +229,7 @@ _main
 	ADD
 	STB
 	POP
-	LDG	.filename
-	ARG
 	LDC	.L10
-	ARG
-	CALLF	2,_printf
-	POP
-	LDC	.L11
 	ARG
 	LDG	.filename
 	ARG
@@ -247,14 +239,14 @@ _main
 	LDG	_listfp
 	LDC	0
 	EQ
-	JF	.L24
+	JF	.L23
 	LDG	.filename
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L16
-.L24
+	JMP	.L15
+.L23
 	LDC	98
 	LDG	.filename
 	LDL	3
@@ -281,7 +273,7 @@ _main
 	ADD
 	STB
 	POP
-	LDC	.L12
+	LDC	.L11
 	ARG
 	LDG	.filename
 	ARG
@@ -291,26 +283,26 @@ _main
 	LDG	_hexfp
 	LDC	0
 	EQ
-	JF	.L25
+	JF	.L24
 	LDG	.filename
 	ARG
 	CALLP	1,_perror
 	LDC	65535
 	MREG
-	JMP	.L16
-.L25
-.L20
+	JMP	.L15
+.L24
+.L19
 	LDP	1
 	LDC	2
 	GT
-	JF	.L26
-	LDC	.L13
+	JF	.L25
+	LDC	.L12
 	ARG
 	CALLP	1,_error
 	LDC	65535
 	MREG
-	JMP	.L16
-.L26
+	JMP	.L15
+.L25
 	CALLP	0,_initPass1
 	LDG	_sourcefp
 	ARG
@@ -319,7 +311,7 @@ _main
 	ARG
 	CALLF	1,_fclose
 	POP
-	LDC	.L14
+	LDC	.L13
 	ARG
 	LDP	2
 	LDC	1
@@ -346,5 +338,5 @@ _main
 	POP
 	LDC	0
 	MREG
-.L16
+.L15
 	RET
