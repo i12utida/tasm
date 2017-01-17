@@ -13,11 +13,14 @@
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
+#include <ctype.hmm>
 
 #include "Util.hmm"
 #include "Lexical.hmm"
 #include "SymTbl.hmm"
 #include "Editor.hmm"
+
+#define UNIX
 
 /**** static変数 ****/
 char[] str = array(LENGTH);
@@ -46,9 +49,16 @@ int factor(){
 
     /* 因子 */
     if(token_id==LxNUM){                    // 数値（10進数, 16進数, 文字定数）
-	    v = getDigit();                     // トークンの数値を取ってくる
-        //printf(" factor v = *%d*\n",v);
-	    setOpr(getLxStr());                 // オペランド配列に登録
+        str = getLxStr();                   // Lexicalのstrを取ってくる
+        if(isAlpha(str[0])){                     // strがアルファベットなら
+            setOpr("'");
+            v = ord(str[0]);                    // str[0]をint型に変換
+            setOpr(str);
+            setOpr("'");
+        } else{
+	        v = getDigit();                     // トークンの数値を取ってくる
+	        setOpr(str);                 // オペランド配列に登録
+        }
     } else if(token_id==LxNAM){             // ラベル
         //printf("eqAnalyzer NAM getLxStr() *%s*\n",getLxStr());
 	    int i = getLabelAddr(getLxStr());   // ラベルのアドレスを取ってくる

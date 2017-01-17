@@ -2,7 +2,7 @@
 #include <stdlib.hmm>
 #include <string.hmm>
 #include <errno.hmm>
-//#include <syslib.hmm>
+#include <syslib.hmm>
 
 #include "Assemble.hmm"
 #include "Error.hmm"
@@ -10,8 +10,8 @@
 #include "Pass2.hmm"
 
 #define FLENGTH 31  /* ファイル名は最大30文字 */
-#define UNIX
-//#define TAC
+//define UNIX
+#define TAC
 
 // 大域変数
 public FILE sourcefp;
