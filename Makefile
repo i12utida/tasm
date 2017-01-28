@@ -7,8 +7,8 @@
 all: Tasm7.exe Tasm7.v
 
 # UNIX, Mac の a.out へ変換
-#Tasm7: Tasm7.cmm Assemble.hmm Error.cmm Error.hmm SymTbl.cmm SymTbl.hmm Lexical.cmm Lexical.hmm Pass1.cmm Pass1.hmm OperationTbl.cmm OperationTbl.hmm Util.cmm Util.hmm Pass2.cmm Pass2.hmm Editor.cmm Editor.hmm
-#	cm2c -o Tasm7 Tasm7.cmm Error.cmm SymTbl.cmm Lexical.cmm Pass1.cmm OperationTbl.cmm Util.cmm Pass2.cmm Editor.cmm
+Tasm7: Tasm7.cmm Assemble.hmm Error.cmm Error.hmm SymTbl.cmm SymTbl.hmm Lexical.cmm Lexical.hmm Pass1.cmm Pass1.hmm OperationTbl.cmm OperationTbl.hmm Util.cmm Util.hmm Pass2.cmm Pass2.hmm Editor.cmm Editor.hmm
+	cm2c -o Tasm7 Tasm7.cmm Error.cmm SymTbl.cmm Lexical.cmm Pass1.cmm OperationTbl.cmm Util.cmm Pass2.cmm Editor.cmm
 
 # TacOS の実行形式を作る
 Tasm7.exe: Tasm7.cmm Assemble.hmm Error.cmm Error.hmm SymTbl.cmm SymTbl.hmm Lexical.cmm Lexical.hmm Pass1.cmm Pass1.hmm OperationTbl.cmm OperationTbl.hmm Util.cmm Util.hmm Pass2.cmm Pass2.hmm Editor.cmm Editor.hmm

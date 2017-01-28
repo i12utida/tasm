@@ -48,7 +48,7 @@
 
 
 //レジスタのトークン番号
-#define LxG0        36      //G0
+#define LxG0        36     //G0
 #define LxG1        37     //G1
 #define LxG2        38     //G2
 #define LxSP        39     //SP

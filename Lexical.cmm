@@ -196,9 +196,14 @@ void getString(){
     int i;                  /* strの添字用変数を宣言 */
 
     if(token_id == LxCOM){      /* コメントの場合は */
-         for(i = 1; nextch != '\n'; i = i+1){   /* nextchが改行以外なら*/
+         for(i = 1; nextch != '\n' && nextch != EOF; i = i+1){   /* nextchが改行以外なら*/
             getCh();            /* 次の文字を取ってくる */
             str[i] = ch;        /* chをstrに記憶 */
+        }
+    } else if(token_id == LxSTR){
+        for(i = 1; nextch != '"'; i = i+1){
+            getCh();
+            str[i] = ch;
         }
     } else{                     /* そうでない場合は */
         for(i = 1; isAlnum(nextch) == true || nextch == '_'; i = i+1){   /* nextchが英字もしくは数字なら */
@@ -261,10 +266,10 @@ public int getToken(){
     if(ch == ' ' || ch == '\t'){
         token_id = LxSPC;
     } else if(ch == '"'){           /* 文字列であるなら */
+        token_id = LxSTR;           /* トークン番号(文字列)を設定 */
         getCh();                    /* 最初のダブルクウォートを飛ばす */
         getString();                /* strに文字列を格納 */
         getCh();                    /* 終わりのダブルクウォートを飛ばす */
-        token_id = LxSTR;           /* トークン番号(文字列)を設定 */
     } else if(ch == '\''){          /* 文字定数であるなら */
         getCh();                    /* 最初のシングルクウォートを飛ばす */
         getString();                /* strに文字を格納 */

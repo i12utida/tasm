@@ -451,8 +451,20 @@ public void printComment(){
 /************** 16進ファイルに出力 *****************************************/
 public void printHex(){
     int i;                              /* プログラムの番地を記憶する変数 */
+    #ifdef UNIX
+        for(i = 0; i < cnt; i = i+1){
+            printf("machine_code[%d] = %x\n",i,machine_code[i]);
+        }
+    #endif
 
-    for(i = 0; i < cnt; i = i+1){        /* 機械語の個数分繰り返す */
+    
+    for(i = cnt; i >= 1; i = i-1){
+        machine_code[i+1] = machine_code[i];
+    }
+
+    machine_code[1] = cnt - 1;          /* プログラム長を機械語配列に出力 */
+
+    for(i = 0; i <= cnt; i = i+1){        /* 機械語の個数分繰り返す */
         fputc(chr(machine_code[i]), hexfp);
     
        //strCpy(str,toHex(machine_code[i]));  /* int型からchar型に変換 */
@@ -461,18 +473,21 @@ public void printHex(){
         
     }
 
+/*
     while(i <= 0xda + 2){
         fputc(chr(0),hexfp);
         // fputs("00",hexfp);
         i = i+1;
     }
+*/
 }
 
 /***************************************************************************/
 
 /*********************** リストファイルのセッター **************************/
 public void setLstFp(FILE lstfp){
-   listfp = lstfp;                     // Editorのリストファイルのポインタをセット
+    listfp = lstfp;                     // Editorのリストファイルのポインタをセット
+    fputs("ADR CODE        Label   Insturuction            Comment\n\n",lstfp);
 }
 /***************************************************************************/
 

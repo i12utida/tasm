@@ -11,17 +11,17 @@ CFLAGS+=-Wno-parentheses-equality
 # プリプロセッサの実行方法
 CPP=cc -E ${CPPFLAGS} -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < 
 
-all: Tasm7 Tasm7.v Tasm7.s Tasm7.exe
+all: Tasm7.v Tasm7.s Tasm7.exe
 
 # MacOS, UNIX の実行形式を作る
-#Tasm7: Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c Util.c Pass2.c Editor.c
-#	cc -o Tasm7 ${CFLAGS} Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c Util.c Pass2.c Editor.c ${LIBDIR}/wrapper.c
+Tasm7: Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c Util.c Pass2.c Editor.c
+	cc -o Tasm7 ${CFLAGS} Tasm7.c Error.c SymTbl.c Lexical.c Pass1.c OperationTbl.c Util.c Pass2.c Editor.c ${LIBDIR}/wrapper.c
 
 # TacOS の実行形式を作る
 Tasm7.exe: Tasm7.s
 	as-- Tasm7.s
 	ld-- mod.o /usr/local/cmmLib/libtac.o Tasm7.o > Tasm7.sym
-	objexe-- Tasm7.exe mod.o 600 | sort --key=1 > Tasm7.map
+	objexe-- Tasm7.exe mod.o 600 USER | sort --key=1 > Tasm7.map
 
 # C言語に変換する
 Tasm7.c: Tasm7.cmm

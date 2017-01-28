@@ -20,7 +20,7 @@
 #include "SymTbl.hmm"
 #include "Editor.hmm"
 
-#define UNIX
+//#define UNIX
 
 /**** static変数 ****/
 char[] str = array(LENGTH);
@@ -65,7 +65,7 @@ int factor(){
         //printf("factor i = *%d*\n",i);
 	    setOpr(getLxStr());                 // アセンブルリストに登録
 	    if(i == -1){                        // ラベルが登録されてない
-            //printf("can't find label\n");
+            printf("can't find label!! str = %s\n",getLxStr());
 	        exit(1);                        // ラベルがないというエラー処理
 	    } else{
 	        v = v + i;                      // ラベルのアドレスを足す
@@ -76,12 +76,12 @@ int factor(){
 	    token_id = getToken();
 	    v = expression();                   // 式を計算
 	    if(token_id!=LxRBR){                // 右括弧以外なら
-            //printf("can't find )\n");
+            printf("can't find )\n");
             exit(1);                        // エラー処理
 	    }
 	    setOpr(")");                        // アセンブルリスト用
     } else{
-        //printf("bad expression\n");
+        printf("bad expression\n");
         exit(1);                            // 式が不正であるエラー処理
     }
 
@@ -163,7 +163,9 @@ public int eqAnalyzer(){
     //printf("eqAnalyzer()\n");
     int value;
     token_id = getTokenID();        /* 現在のトークン番号を取ってくる */
-    //printf("eqAnalyzer token_id = *%d*\n",token_id);
+    #ifdef UNIX
+        printf("eqAnalyzer token_id = *%d*\n",token_id);
+    #endif
     value = expression();           /* 式の解析を開始 */
     //printf("Return eqAnalyzer value = *%d*   token_id = *%d*\n",value,token_id);
     return value;

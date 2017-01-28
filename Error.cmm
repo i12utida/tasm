@@ -12,5 +12,5 @@ public void error(char[] s) {
 }
 
 public void error2(char[] s1, char[] s2) {
-    fprintf(stderr,"%s : %s\n", s2, s1);
+    fprintf(stderr,"%s : %s\n", s1, s2);
 }

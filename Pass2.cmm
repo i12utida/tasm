@@ -49,8 +49,18 @@ void expantion(){
     int i;
     if(token_id == LxSTR){
         str = getLxStr();
+        #ifdef UNIX
+            printf("expansion str = %s\n",str);
+        #endif
 	    for(i = 0; i < strLen(str); i = i+1){
-		    byte[cnt] = ord(str[i]);
+            if(str[i] == ' '){
+                #ifdef UNIX
+                    printf("expansion\n");
+                #endif
+                byte[cnt] = 0x20;
+            } else{
+		        byte[cnt] = ord(str[i]);
+            }
             cnt = cnt + 1;
         }
         setOpr("\"");
@@ -99,7 +109,11 @@ void EQU(){
     value = eqAnalyzer();       /* 式を解析して結果を取ってくる */
     setPca(value);              /* 返ってきた値をリストのpcaの部分にセット */
     token_id = getTokenID();    /* 現在のトークン番号を取ってくる */
-
+    if(token_id == LxCOM){      /* コメントなら */
+        str = getLxStr();       /* Lexicalのstrを取ってくる */
+        setComment(str);        /* コメントをセット */
+        token_id = getToken();  /* 次のトークンへ進めておく */
+    }
 }
 
 void DS(){
@@ -114,6 +128,7 @@ void DS(){
     if(token_id == LxCOM){      /* コメントなら */
         str = getLxStr();           /* コメントを取ってくる */
         setComment(str);            /* リストにコメントをセットする */
+        token_id = getToken();   /* 次のトークンへ進めておく */
     }
     
     while(value/5 != 0){        /* 値が4以上のとき */
@@ -174,6 +189,11 @@ void ORG(){
         setMachineCode(0);                  /* 16進ファイルの機械語を0で埋める */
         pca = pca + 1;                      /* pcaをカウントアップ */
     }
+    if(token_id == LxCOM){              /* コメントなら */
+        str = getLxStr();                   /* Lexicalのstrを取ってくる */
+        setComment(str);                    /* コメントをセット */
+        token_id = getToken();              /* トークンを次へ進めておく */
+    }
 }
 
 
@@ -189,6 +209,7 @@ void opStyle1(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 }
 
@@ -216,6 +237,7 @@ void opStyle2(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 }
 
@@ -261,17 +283,26 @@ void opStyle3(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 
 }
 
 void opStyle4(){
+    #ifdef UNIX
+        printf("opStyle4 token_id = %d\n",token_id);
+    #endif
     setPca(pca);
     pca = pca + searchSize(token_id);   /* pcaを増加 */
+    str = getLxStr();                   /* Lexicalのstrを取ってくる */
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
 
     token_id = getToken();              /* <レジスタ>の部分を取ってくる */
+     #ifdef UNIX
+        printf("register token_id = %d\n",token_id);
+    #endif
+
     opr1 = getLxStr();                  /* Lexicalからレジスタの綴りを取ってくる */
     setOpr(opr1);                       /* オペランドをセット */
     if(token_id == LxG0){
@@ -292,6 +323,9 @@ void opStyle4(){
     }
 
     token_id = getToken();              /* '#'もしくは数値を取ってくる */
+    #ifdef UNIX
+        printf("addressing token_id = %d\n",token_id);
+    #endif
     if(token_id == LxIMM){              /* イミディエイトなら */
         setOpr("#");                        /* '#'をセット */
         xr = 0x03;                          /* xr部をセット */
@@ -333,6 +367,7 @@ void opStyle4(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
@@ -370,7 +405,6 @@ void opStyle5(){
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
     if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
-        setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
         token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
@@ -392,7 +426,6 @@ void opStyle5(){
     }
 
     first_byte = op | gr | xr;          /* first_byteを確定 */
-    setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
 
     if(token_id == LxG1 || token_id == LxG2){   /* インデクスモードだったら */
@@ -405,6 +438,7 @@ void opStyle5(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
@@ -421,6 +455,9 @@ void opStyle6(){
 
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
     if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
+        #ifdef UNIX
+            printf("before opStyle eqAnalyzer()\n");
+        #endif
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
@@ -455,6 +492,7 @@ void opStyle6(){
     if(token_id == LxCOM){
         str = getLxStr();               /* strにLexicalのstrを取ってくる */
         setComment(str);                /* リストのコメントをセットする */
+        token_id = getToken();
     }
 
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
@@ -479,7 +517,7 @@ void opStyle7(){
 void opStyle8(){
 
     setRsvWord(str);                    /* リストの予約語をセット */
-    valueSeq();
+    valueSeq();                         /* 定数の個数をcntに格納する */
     int i;
     int limit = 0;
 
@@ -488,19 +526,26 @@ void opStyle8(){
         setSecondByte(byte[limit+1]);       /* リストの第二バイトをセット */
         setThirdByte(byte[limit+2]);        /* リストの第三バイトをセット */
         setForthByte(byte[limit+3]);        /* リストの第四バイトをセット */
-        limit = limit + 4;        /* 4つ領域を割り当てたので4引く */
-        for (i = 0; i < 4; i = i+1){
-            setMachineCode(byte[limit+i]);
+        for (i = 0; i < 4; i = i+1){        /* 最初の4バイト分まで */
+            setMachineCode(byte[limit+i]);  /* 機械語配列にセット */
         }
-        setPca(pca);
+        limit = limit + 4;      /* 4つ領域を割り当てたので4つ埋める */
+        setPca(pca);            /* pcaをセット */
         pca = pca + 4;          /* pcaをカウントアップ */
+        #ifdef UNIX
+            printf("DC pca = %s\n",toHex(pca));
+        #endif
+
         printBuffer();          /* リストのバッファを出力 */
         initBuffers();           /* バッファを初期化 */
     }
 
     while((cnt - limit) != 0){
-        pca = pca + (cnt - limit - 1);
         setPca(pca);
+        pca = pca + (cnt - limit);
+        #ifdef UNIX
+            printf("DC pca = %s\n",toHex(pca));
+        #endif
         if( (cnt - limit) != 0){
             setFirstByte(byte[limit]);
             setMachineCode(byte[limit]);
@@ -532,6 +577,9 @@ void opStyle8(){
 }
 
 void styleAnalyzer(){
+    #ifdef UNIX
+        printf("style Analyzer\n");
+    #endif
     style = searchStyle(token_id);
     if(style == 1){
         opStyle1();                         // スタイル1の実行
@@ -570,71 +618,84 @@ void styleAnalyzer(){
 }
 
 public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
+    #ifdef UNIX
+        printf("pass2 start\n");
+    #endif
     initBuffers();                          /* バッファの初期化 */
     setMachineCode(0);
-    setMachineCode(0xda);
     setLxFp(sourcefp);
     setLstFp(listfp);
     setHexFp(hexfp);
-    //printf("pass2start\n");
     token_id = getToken();                  /* 最初のトークンを取ってくる */
-    if(token_id != LxSPC){                  /* ファイルの最初がスペース以外なら */
-        str = getLxStr();                   /* Lexicalのstrを取ってくる */
-        if(token_id == LxCOM){                /* 行頭がコメントなら */
-            setComment(str);                    /* リストのコメントにセット */
-        } else if(isAlpha(str[0])){           /* ラベルに適した文字なら */
-            setLabel(str);                      /* リストのlabelにセット */
-        } else{                               /* ラベルにできない文字なら */
-            token_id = LxERR;                   /* トークンをエラーにセット */
-        }
-    }
+    #ifdef UNIX
+        printf("first token = %d\n",token_id);
+    #endif
 
         while(token_id != LxEOF && token_id != LxERR){  /* ファイルの終わりまで */
         #ifdef UNIX
             printf("before function of start line   token_id = *%d*\n",token_id);
         #endif
-        /**************** 行頭の処理 ****************/
-        if(token_id == LxEOL){              /* 行末なら */
-            token_id = getToken();          /* 次のトークンを取ってくる */
-            #ifdef UNIX
-                printf("start of line\n");
-                ch();
-            #endif
-           if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
+        /************************ 行頭の処理 ****************************/
+        if(token_id != LxSPC){
+            while(token_id == LxEOL){              /* 行末なら */
+                token_id = getToken();          /* 次のトークンを取ってくる */
+                #ifdef UNIX
+                    printf("start of line token_id = %d\n",token_id);
+                    ch();
+                #endif
+            }
+            if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
                 str = getLxStr();                   /* Lexicalのstrを取ってくる */
                 setLabel(str);
             } else if(token_id == LxCOM){       /* 行頭がコメントなら */
                 str = getLxStr();
+                #ifdef UNIX
+                    printf("Pass2 second comment = %s\n",str);
+                #endif
                 setComment(str);                    /* リストのコメントにセット */
+                printComment();                     /* コメント行を出力 */
+                initBuffers();                      /* バッファを初期化 */
             } else if(token_id == LxEOF){       /* ファイルの終わりなら */
                 printBuffer();                      /* 最終行のバッファを出力 */
                 break;                              /* pass2のループを抜ける */
             }
         }
-        /*********************************************/
+        /*****************************************************************/
 
         token_id = getToken();              /* 次のトークンを取ってくる */
         #ifdef UNIX
             printf("not line token_id = %d\n",token_id);
             ch();
         #endif
-
+    /*********************************** 命令部から右側 *************************/
+        while(token_id != LxEOL && token_id != LxEOF && token_id != LxERR){  /* 改行またはファイルの終わりまで */
         if(token_id == LxCOM){                              /* コメントのみの行なら */
             str = getLxStr();                                   /* Lexicalのstrを取ってくる */
+            #ifdef UNIX
+                printf("third comment = *%s*\n",str);
+            #endif
             setComment(str);                                    /* リストのコメントにセット */
-            printComment();
-            initBuffers();
+            printComment();                                     /* コメント行を出力 */
+            initBuffers();                                      /* バッファを初期化 */
+            token_id = getToken();                              /* 次のトークンを取ってくる */
         } else if(0 <= token_id && token_id < LxRSV_NUM){    /* 予約語なら */
             styleAnalyzer();                                    /* スタイルの確定とそれぞれのスタイルの処理 */
         } else if(token_id == LxEOL){
         } else if(token_id == LxEOF){
             break;
         } else{
-            error("bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
+            #ifdef UNIX
+                printf("error token_id = %d  str = %s\n",token_id,getLxStr());
+            #endif
+            exit(-1);
+            error("pass2 bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
         }
 
+        } /* while 改行またはファイルの終わりまで */
 
-    }
+    /******************************************************************************/
+
+    } /* while ファイルの終わりまで */
 
     printHex();                                         /* 溜め込んだ機械語を全て16進ファイルに出力 */
 }

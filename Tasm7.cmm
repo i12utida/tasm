@@ -10,7 +10,7 @@
 #include "Pass2.hmm"
 
 #define FLENGTH 31  /* ファイル名は最大30文字 */
-//define UNIX
+//#define UNIX
 #define TAC
 
 // 大域変数
@@ -48,7 +48,7 @@ public int main(int argc, char[][] argv){
     if(flength <= 30){                              /* 30文字以内なら */
         strCpy(filename,argv[i]);
     } else{
-        error("file name is too long");
+        error("File name is too long :");
         exit(1);
     }
 
@@ -56,11 +56,12 @@ public int main(int argc, char[][] argv){
         if(filename[flength-3] == '.' && filename[flength-2] == 't' && filename[flength-1] == '7'){    /* ファイル名が".t7"でおわるなら */
             sourcefp = fopen(argv[i],"r");              /* ソースファイルをオープン */
             if(sourcefp == null){                       // オープン失敗の場合は、
-                perror(argv[i]);                        // エラー出力
+                error2("Cannot open file : ",argv[i]);  //エラー出力
                 return -1 ;
             } 
         } else{
-            usage(argv[0]);
+            error("File extension must end with .t7");
+            return -1;
         }
 
         filename[flength - 2] = 'l';
@@ -69,12 +70,14 @@ public int main(int argc, char[][] argv){
         filename[flength + 1] = '\0';
 
         #ifdef TAC
-            exec("bin/rm.exe",filename);
+            remove(filename);
         #endif
         listfp = fopen(filename,"w");              /* リストファイルをオープン */
         if(listfp == null){
-            perror(filename);
+            error2("Cannot open file : ",filename); /* エラー出力 */
             return -1;
+        } else {
+            printf("made %s\n",filename);           /* 通常出力 */
         }
  
         filename[flength - 2] = 'b';
@@ -83,17 +86,20 @@ public int main(int argc, char[][] argv){
         filename[flength + 1] = '\0';
 
         #ifdef TAC
-            exec("bin/rm.exe",filename);
+            remove(filename);
         #endif
         hexfp = fopen(filename,"w");         /* バイナリファイルのオープン */
         if(hexfp == null){
-            perror(filename);
+            error2("Cannot open file : ",filename); /* エラー出力 */
             return -1;
+        } else {
+            printf("made %s\n",filename);           /* 通常出力 */
         }
     }
     
     if(argc>2) {                                    /* 引数が多すぎる場合 */
-        error("引数が多すぎます");
+        error("Too many input files");                  /* エラー出力 */
+        usage(argv[0]);
         return -1;
     }
     
@@ -110,8 +116,17 @@ public int main(int argc, char[][] argv){
     pass2(sourcefp,listfp,hexfp);
     
     // ファイルをクローズ
-    //fclose(sourcefp);
+    fclose(sourcefp);
+    #ifdef UNIX
+        printf("close sourcefp\n");
+    #endif
     fclose(listfp);
+    #ifdef UNIX
+        printf("close listfp\n");
+    #endif
     fclose(hexfp);
-    return 0 ;
+     #ifdef UNIX
+        printf("close hexfp\n");
+    #endif
+   return 0 ;
 }
