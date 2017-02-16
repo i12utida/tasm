@@ -11,5 +11,6 @@ public void initSymTbl();
 public void asignLabel(int pca, char[] str);
 public int getLabelAddr(char[] str);
 public boolean searchLabel(char[] str);
-public void changeSymAddr(int pca, int address);
+public boolean searchSymAdr(int pca);
+public void changeSymAdr(int pca, int address);
 #endif      /* SYMTBL */

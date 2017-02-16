@@ -1,3 +1,4 @@
+
 #include <string.hmm>
 #include <stdlib.hmm>
 #include <stdio.hmm>
@@ -383,6 +384,27 @@ void storeComment(){
 
 /*******************************************************/
 
+/************** コメントのみの行の出力 ****************************/
+void printComment(){
+    int buflen = 16;
+    int length = strLen(comment);     // 入力文字列の長さを格納
+    int i = 0;
+    while(i < buflen){
+        buf[i] = ' ';
+        i = i+1;
+    }
+
+    for(i = 0; i < length; i = i+1){
+        buf[buflen] = comment[i];
+        buflen = buflen + 1;
+    }
+
+    buf[buflen] = '\n';
+    buf[buflen+1] = '\0';
+
+    fputs(buf,listfp);
+}
+
 /***************** バッファ出力 *******************/
 public void printBuffer(){
    int buflen;                     // 出力用bufの長さを格納
@@ -419,50 +441,52 @@ public void printBuffer(){
    buf[buflen] = '\n';
    buf[buflen+1] = '\0';
 
+    // コメントのみか検査
+    i = 0;
+    // バッファの最初の文字まで飛ぶ
+    while(buf[i] == ' '){
+        i = i+1;
+    }
+
+    if(buf[i] == ';'){                   // コメント行なら
+        printComment();                  // コメントのみのリストファイル出力
+    }
+    else{                                // コメント以外も含む行なら
+        fputs(buf,listfp);                  // 通常のリストファイル出力
+    }
+
     #ifdef UNIX
         printf("Buffer     *%s*\n",buf);
     #endif
 
-   fputs(buf,listfp);                  // リストファイルに出力
 }
 /***************************************************************************/
-
-/************** コメントのみの行の出力 ****************************/
-public void printComment(){
-    int buflen = 16;
-    int length = strLen(comment);     /* 入力文字列の長さを格納*/
-    int i = 0;
-    while(i < buflen){
-        buf[i] = ' ';
-        i = i+1;
-    }
-
-    for(i = 0; i < length; i = i+1){
-        buf[buflen] = comment[i];
-        buflen = buflen + 1;
-    }
-
-    buf[buflen] = '\n';
-    buf[buflen+1] = '\0';
-
-    fputs(buf,listfp);
-}
 
 /************** 16進ファイルに出力 *****************************************/
 public void printHex(){
     int i;                              /* プログラムの番地を記憶する変数 */
     #ifdef UNIX
+    printf("cnt = %d\n",cnt);
         for(i = 0; i < cnt; i = i+1){
             printf("machine_code[%d] = %x\n",i,machine_code[i]);
         }
     #endif
 
-    
+    // 機械語を一つずつずらす
+    /*
     for(i = cnt; i >= 1; i = i-1){
         machine_code[i+1] = machine_code[i];
     }
+    */
+    #ifdef UNIX
+    printf("after input program length\ncnt = %d\n",cnt);
+        for(i = 0; i < cnt+1; i = i+1){
+            printf("machine_code[%d] = %x\n",i,machine_code[i]);
+        }
+    #endif
 
-    machine_code[1] = cnt - 1;          /* プログラム長を機械語配列に出力 */
+
+   // machine_code[1] = cnt - 1;          /* プログラム長を機械語配列に出力 */
 
     for(i = 0; i <= cnt; i = i+1){        /* 機械語の個数分繰り返す */
         fputc(chr(machine_code[i]), hexfp);
@@ -473,13 +497,13 @@ public void printHex(){
         
     }
 
-/*
+
+    // プログラム長以外を00Hで埋める部分
     while(i <= 0xda + 2){
         fputc(chr(0),hexfp);
         // fputs("00",hexfp);
         i = i+1;
     }
-*/
 }
 
 /***************************************************************************/

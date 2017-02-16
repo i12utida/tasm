@@ -96,7 +96,7 @@ void valueSeq(){
 	    } else if(token_id == LxEOL || token_id == LxEOF){
 	        break ;
 	    } else {
-            /* エラー処理 */
+            error2("Value not suitable for value stream",getLxStr());
 	        break ;
 	    }
     }
@@ -218,6 +218,8 @@ void opStyle2(){
     pca = pca + searchSize(token_id);   /* pcaを増加 */
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
+
+    // <レジスタ>の処理
     token_id = getToken();              /* <レジスタ>の部分を取ってくる */
     opr1 = getLxStr();                  /* Lexicalからレジスタの綴りを取ってくる */
     setOpr(opr1);                       /* オペランドをセット */
@@ -229,7 +231,10 @@ void opStyle2(){
         gr = 0x08;
     } else if(token_id == LxSP){
         gr = 0x0C;
+    } else {
+        error2("You must write register here",getLxStr());
     }
+
     first_byte = op | gr;               /* 第一バイトを確定 */
     setMachineCode(first_byte);         /* 16進ファイルの第一バイトをセット */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
@@ -258,6 +263,8 @@ void opStyle3(){
         gr = 0x08;
     } else if(token_id == LxSP){
         gr = 0x0C;
+    } else {
+        error2("you must write register here.",getLxStr());
     }
 
     first_byte = op | gr;               /* 第一バイトを確定 */
@@ -268,7 +275,8 @@ void opStyle3(){
     if(token_id == LxCMM){              /* カンマなら */
         setOpr(",");                    /* リストのオペランドにカンマをセット */
     } else {
-        /* <式>の部分がないというエラー処理を書く */
+        /* カンマがないというエラー処理を書く */
+        error2("Can't find ','",getLxStr());
     }
 
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
@@ -289,20 +297,20 @@ void opStyle3(){
 }
 
 void opStyle4(){
-    #ifdef UNIX
-        printf("opStyle4 token_id = %d\n",token_id);
-    #endif
+    
+    // ロケーションカウンタの処理
     setPca(pca);
     pca = pca + searchSize(token_id);   /* pcaを増加 */
+
+    // <命令>の処理
     str = getLxStr();                   /* Lexicalのstrを取ってくる */
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
 
-    token_id = getToken();              /* <レジスタ>の部分を取ってくる */
-     #ifdef UNIX
-        printf("register token_id = %d\n",token_id);
-    #endif
 
+
+    // <レジスタ>の処理
+    token_id = getToken();              /* <レジスタ>の部分を取ってくる */
     opr1 = getLxStr();                  /* Lexicalからレジスタの綴りを取ってくる */
     setOpr(opr1);                       /* オペランドをセット */
     if(token_id == LxG0){
@@ -313,46 +321,50 @@ void opStyle4(){
         gr = 0x08;
     } else if(token_id == LxSP){
         gr = 0x0C;
+    } else {                            // レジスタ以外ならエラー
+        error2("You must write register here",getLxStr());
     }
-
+    
+    // カンマの処理
     token_id = getToken();              /* カンマを取ってくる */
     if(token_id == LxCMM){              /* カンマなら */
         setOpr(",");                    /* リストのオペランドにカンマをセット */
     } else {
-        /* <式>の部分がないというエラー処理を書く */
+        /* カンマがないというエラー処理を書く */
+        error2("Can't find ','",getLxStr());
     }
 
+    // <アドレス1>の処理
     token_id = getToken();              /* '#'もしくは数値を取ってくる */
-    #ifdef UNIX
-        printf("addressing token_id = %d\n",token_id);
-    #endif
     if(token_id == LxIMM){              /* イミディエイトなら */
         setOpr("#");                        /* '#'をセット */
         xr = 0x03;                          /* xr部をセット */
         token_id = getToken();              /* <式>の最初の部分を取ってくる */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
-    } else if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
+    } else if(token_id == LxNUM || token_id == LxNAM || token_id == LxLBR){      /* 数値もしくはラベルなら */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
-        token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
-        if(token_id == LxCMM){              /* カンマ(インデクス)なら */
-            setOpr(",");                        /* リストのオペランドにカンマをセット */
-            token_id = getToken();              /* <インデクス>の部分を取ってくる */
-            if(token_id == LxG1){               /* G1インデクスモードなら */
+    }
+    token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
+        
+    if(token_id == LxCMM){              /* カンマ(インデクス)なら */
+        setOpr(",");                        /* リストのオペランドにカンマをセット */
+        token_id = getToken();              /* <インデクス>の部分を取ってくる */
+        opr3 = getLxStr();                  /* Lexicalのstrをopr3にセット */
+        setOpr(opr3);                       /* リストのオペランドにセット */
+         
+
+        if(token_id == LxG1){               /* G1インデクスモードなら */
                 xr = 0x01;                          /* xrをセット */
             } else if(token_id == LxG2){         /* G2インデクスモードなら */
                 xr = 0x02;                          /* xrをセット */
             } else{
                 /* インデクス部が異常であるエラー処理 */
+                error2("You must write register here",getLxStr());
             }
-            opr3 = getLxStr();                  /* Lexicalのstrをopr3にセット */
-            setOpr(opr3);                       /* リストのオペランドにセット */
-        } else {                            /* ダイレクトであるなら */
-            xr = 0x00;                          /* xrをセット */
         }
-    }
 
     first_byte = op | gr | xr;          /* first_byteを確定 */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
@@ -393,37 +405,43 @@ void opStyle5(){
         gr = 0x08;
     } else if(token_id == LxSP){
         gr = 0x0C;
+    } else{
+        error2("You must write register here",getLxStr());
     }
 
     token_id = getToken();              /* カンマを取ってくる */
     if(token_id == LxCMM){              /* カンマなら */
         setOpr(",");                    /* リストのオペランドにカンマをセット */
     } else {
-        /* <式>の部分がないというエラー処理を書く */
+        /* カンマがないというエラー処理を書く */
+        error2("Can't find ','",getLxStr());
     }
 
     token_id = getToken();              /* <式>の最初の部分を取ってくる */
-    if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
+    if(token_id == LxNUM || token_id == LxNAM || token_id == LxLBR){      /* 数値もしくはラベルなら */
         second_byte = eqAnalyzer();         /* <式>の部分を解析して第二バイトに格納する */
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
         token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
+
         if(token_id == LxCMM){              /* カンマ(インデクス)なら */
             setOpr(",");                        /* リストのオペランドにカンマをセット */
             token_id = getToken();              /* <インデクス>の部分を取ってくる */
+            opr3 = getLxStr();                  /* Lexicalのstrをopr3にセット */
+            setOpr(opr3);                       /* リストのオペランドにセット */
+         
+
             if(token_id == LxG1){               /* G1インデクスモードなら */
                 xr = 0x01;                          /* xrをセット */
             } else if(token_id == LxG2){         /* G2インデクスモードなら */
                 xr = 0x02;                          /* xrをセット */
             } else{
                 /* インデクス部が異常であるエラー処理 */
+                error2("You must write register here",getLxStr());
             }
-            opr3 = getLxStr();                  /* Lexicalのstrをopr3にセット */
-            setOpr(opr3);                       /* リストのオペランドにセット */
-        } else {                            /* ダイレクトであるなら */
-            xr = 0x00;                          /* xrをセット */
         }
-    }
+
+
 
     first_byte = op | gr | xr;          /* first_byteを確定 */
     setFirstByte(first_byte);           /* リストの第一バイトをセット */
@@ -443,18 +461,23 @@ void opStyle5(){
 
     setMachineCode(first_byte);         /* 16進ファイルの機械語をセット */
     setMachineCode(second_byte);        /* 16進ファイルの機械語をセット */
-
+    }
 }
 
 void opStyle6(){
 
+    // ロケーションカウンタの処理
     setPca(pca);
     pca = pca + searchSize(token_id);   /* pcaを増加 */
+
+    // <命令>の処理
     setRsvWord(str);                    /* リストの予約語をセット */
     op = searchMachineCode(token_id);   /* 予約語のop部分をセット */
 
-    token_id = getToken();              /* <式>の最初の部分を取ってくる */
-    if(token_id == LxNUM || token_id == LxNAM){      /* 数値もしくはラベルなら */
+    // <アドレス2>の処理
+    xr = 0x00;
+    token_id = getToken();              /* <アドレス2>の最初の部分を取ってくる */
+    if(token_id == LxNUM || token_id == LxNAM || token_id == LxLBR){      /* 数値もしくはラベルなら */
         #ifdef UNIX
             printf("before opStyle eqAnalyzer()\n");
         #endif
@@ -462,20 +485,22 @@ void opStyle6(){
         setSecondByte(second_byte);         /* リストの第二バイトをセット */
         
         token_id = getTokenID();            /* 式解析でトークン番号が変動したので現在のトークン番号を取ってくる */
+
         if(token_id == LxCMM){              /* カンマ(インデクス)なら */
             setOpr(",");                        /* リストのオペランドにカンマをセット */
             token_id = getToken();              /* <インデクス>の部分を取ってくる */
+            opr3 = getLxStr();                  /* Lexicalのstrをopr3にセット */
+            setOpr(opr3);                       /* リストのオペランドにセット */
+         
+
             if(token_id == LxG1){               /* G1インデクスモードなら */
                 xr = 0x01;                          /* xrをセット */
             } else if(token_id == LxG2){         /* G2インデクスモードなら */
                 xr = 0x02;                          /* xrをセット */
             } else{
                 /* インデクス部が異常であるエラー処理 */
+                error2("You must write register here",getLxStr());
             }
-            opr1 = getLxStr();                  /* Lexicalのstrをopr3にセット */
-            setOpr(opr1);                       /* リストのオペランドにセット */
-        } else {                            /* ダイレクトであるなら */
-            xr = 0x00;                          /* xrをセット */
         }
     }
 
@@ -570,8 +595,8 @@ void opStyle8(){
             limit = limit + 1;
         }
 
-    printBuffer();
-    initBuffers();
+    //printBuffer();
+    //initBuffers();
 
     }
 }
@@ -583,35 +608,35 @@ void styleAnalyzer(){
     style = searchStyle(token_id);
     if(style == 1){
         opStyle1();                         // スタイル1の実行
-        printBuffer();                      // リストファイルに出力
-        initBuffers();                      // バッファの初期化
+        //printBuffer();                      // リストファイルに出力
+        //initBuffers();                      // バッファの初期化
     } else if(style == 2){
         opStyle2();                         // スタイル2の実行
-        printBuffer();                      // リストファイルに出力
-        initBuffers();                      // バッファの初期化
+        //printBuffer();                      // リストファイルに出力
+        //initBuffers();                      // バッファの初期化
     } else if(style == 3){
         opStyle3();                         // スタイル3の実行
-        printBuffer();
-        initBuffers();                      // バッファの初期化
+        //printBuffer();
+        //initBuffers();                      // バッファの初期化
     } else if(style == 4){
         opStyle4();                         // スタイル4の実行
-        printBuffer();
-        initBuffers();                      // バッファの初期化
+        //printBuffer();
+        //initBuffers();                      // バッファの初期化
     } else if(style == 5){
         opStyle5();                         // スタイル5の実行
-        printBuffer();
-        initBuffers();                      // バッファの初期化
+        //printBuffer();
+        //initBuffers();                      // バッファの初期化
     } else if(style == 6){
         opStyle6();                         // スタイル6の実行
-        printBuffer();
-        initBuffers();                      // バッファの初期化
+        //printBuffer();
+        //initBuffers();                      // バッファの初期化
     } else if(style == 7){
         opStyle7();                         // スタイル7の実行
-        printBuffer();
-        initBuffers();                      // バッファの初期化
+        //printBuffer();
+        //initBuffers();                      // バッファの初期化
     } else if(style == 8){
         opStyle8();                         // スタイル8の実行
-        initBuffers();                      // バッファの初期化
+        //initBuffers();                      // バッファの初期化
     } else{
         error("Bad Operation Style");
     }
@@ -622,7 +647,6 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
         printf("pass2 start\n");
     #endif
     initBuffers();                          /* バッファの初期化 */
-    setMachineCode(0);
     setLxFp(sourcefp);
     setLstFp(listfp);
     setHexFp(hexfp);
@@ -636,33 +660,87 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
             printf("before function of start line   token_id = *%d*\n",token_id);
         #endif
         /************************ 行頭の処理 ****************************/
-        if(token_id != LxSPC){
-            while(token_id == LxEOL){              /* 行末なら */
+        if(token_id != LxSPC){                  // スペース以外なら
+            if(token_id == LxEOL){              /* 行末なら */
                 token_id = getToken();          /* 次のトークンを取ってくる */
+                while(token_id == LxEOL){       // 次の行も改行なら
+                    setPca(pca);                // プログラムカウンタをセット
+                    printBuffer();              // 空行を出力
+                    initBuffers();              // リストバッファを初期化
+                    token_id = getToken();      // 次のトークンを取ってくる
                 #ifdef UNIX
                     printf("start of line token_id = %d\n",token_id);
                     ch();
                 #endif
+                }
             }
+            
             if(token_id == LxNAM){              /* 行の先頭が空白以外なら */
-                str = getLxStr();                   /* Lexicalのstrを取ってくる */
-                setLabel(str);
-            } else if(token_id == LxCOM){       /* 行頭がコメントなら */
+                str = getLxStr();               /* Lexicalのstrを取ってくる */
+                setPca(pca);                    // プログラムカウンタをセット
+                setLabel(str);                  // ラベルをセット
+                token_id = getToken();          // 次のトークンを取ってくる
+            } 
+
+            else if(token_id == LxSPC) {        // スペースが来たら
+                token_id = getToken();          // 次のトークンを取ってくる
+           }
+
+            else if(token_id == LxCOM){       /* 行頭がコメントなら */
                 str = getLxStr();
                 #ifdef UNIX
                     printf("Pass2 second comment = %s\n",str);
                 #endif
                 setComment(str);                    /* リストのコメントにセット */
-                printComment();                     /* コメント行を出力 */
+                printBuffer();                     /* バッファを出力 */
                 initBuffers();                      /* バッファを初期化 */
-            } else if(token_id == LxEOF){       /* ファイルの終わりなら */
+                token_id = getToken();              // 改行もしくはEOFを取ってくる
+            } 
+            
+            else if(token_id == LxEOF){       /* ファイルの終わりなら */
                 printBuffer();                      /* 最終行のバッファを出力 */
                 break;                              /* pass2のループを抜ける */
             }
         }
+
+        else {                                      // スペースなら
+            token_id = getToken();                  // 次のトークンへ
+        }
         /*****************************************************************/
 
-        token_id = getToken();              /* 次のトークンを取ってくる */
+        /*********************************** 命令欄 ****************************************/
+        /*
+        if(token_id != LxEOF && token_id != LxEOL){
+            if(0 <= token_id  && token_id < LxRSV_NUM){     // 予約語なら
+                                                            // 何もしない
+            }
+            else if(token_id == LxCOM){                     // コメントなら
+                 str = getLxStr();                          // Lexicalのstrを取ってくる
+                #ifdef UNIX
+                    printf("third comment = *%s*\n",str);
+                #endif
+                setComment(str);                            // リストのコメントにセット
+                printBuffer();                              // バッファを出力
+                initBuffers();                              // バッファを初期化
+                skipToNewLineOrEOF();                       // 次の改行もしくはEOFの手前まで
+                token_id = getToken();                      // 改行かEOFを取ってくる
+            }
+
+            else if(token_id == LxEOL){                     // 改行なら
+                                                            // 何もしない
+            }
+            
+            else if(token_id == LxEOF){                     // EOFなら
+                                                            // 何もしない
+            }
+            else{                                           // それ以外なら
+                
+                exit(0);
+            }
+        }
+        */
+        /********************************** 命令欄部分終わり *********************************/
+
         #ifdef UNIX
             printf("not line token_id = %d\n",token_id);
             ch();
@@ -675,25 +753,36 @@ public void pass2(FILE sourcefp, FILE listfp, FILE hexfp){
                 printf("third comment = *%s*\n",str);
             #endif
             setComment(str);                                    /* リストのコメントにセット */
-            printComment();                                     /* コメント行を出力 */
+            printBuffer();                                      /* バッファを出力 */
             initBuffers();                                      /* バッファを初期化 */
-            token_id = getToken();                              /* 次のトークンを取ってくる */
-        } else if(0 <= token_id && token_id < LxRSV_NUM){    /* 予約語なら */
+            token_id = getToken();                              // 改行もしくはEOFを取ってくる
+        } 
+        
+        else if(0 <= token_id && token_id < LxRSV_NUM){       /* 予約語なら */
             styleAnalyzer();                                    /* スタイルの確定とそれぞれのスタイルの処理 */
-        } else if(token_id == LxEOL){
-        } else if(token_id == LxEOF){
-            break;
-        } else{
+        } 
+        
+        else if(token_id == LxEOL){                             // 改行なら
+                                                                // なにもしない
+        } 
+        
+        else if(token_id == LxEOF){                             // EOFなら
+            break;                                              // 抜け出す
+        } 
+        
+        else{                                                   // それ以外なら
             #ifdef UNIX
                 printf("error token_id = %d  str = %s\n",token_id,getLxStr());
             #endif
-            exit(-1);
-            error("pass2 bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!bad instruction!!");
+            error2("Something wrong at operand",getLxStr());
         }
 
         } /* while 改行またはファイルの終わりまで */
 
     /******************************************************************************/
+
+    printBuffer();          // 蓄えたリストバッファを出力
+    initBuffers();          // リストバッファの初期化
 
     } /* while ファイルの終わりまで */
 

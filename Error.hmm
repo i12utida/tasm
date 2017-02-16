@@ -2,5 +2,6 @@
 
 public void error(char[] s);
 public void error2(char[] s1, char[] s2);
-
+public void fileError(char[] s1);
+public void fileError2(char[] s1, char[] s2);
 #endif      /* ERROR_H */
