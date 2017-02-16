@@ -48,7 +48,7 @@
 
 
 //レジスタのトークン番号
-#define LxG0        36      //G0
+#define LxG0        36     //G0
 #define LxG1        37     //G1
 #define LxG2        38     //G2
 #define LxSP        39     //SP
@@ -83,13 +83,14 @@ struct RsvWord {
   int  rsvword_id;                    /* トークン値の組 */
 };
 
-public char getCh();
+char getCh();
 public int getDigit();
 public int getToken();
 public int getTokenID();
 public void skipToNewLineOrEOF();
 public boolean getLabel();
 public char[] getLxStr();
+public int getLine();
 
 public void initLexical();
 public void setLxFp(FILE file);
