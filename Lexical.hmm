@@ -74,7 +74,8 @@
 #define LxERR       116     // Error
 
 #define LENGTH 80           // Line Length
-#define LxRSV_NUM   36      // Number of Reserved Words
+#define LxRSV_NUM   40      // Number of Reserved Words
+#define LxOP_NUM    36      // Number of Operations
 #define LxREG_NUM   4       // Number of Registers
 
 // 予約語の一覧表

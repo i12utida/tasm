@@ -50,7 +50,7 @@ public void pass1(FILE sourcefp){
                 token_id = getToken();          /* 次のトークンを取ってくる */
             }
         
-            if(0 <= token_id  && token_id < LxRSV_NUM){
+            if(0 <= token_id  && token_id < LxOP_NUM){
                 str = getLxStr();
                 error2("Operation can't become label : ",str);
             } 
@@ -101,7 +101,7 @@ public void pass1(FILE sourcefp){
             #ifdef UNIX
                 printf("mnemonic place token_id = %d, str = %s\n",token_id,getLxStr());
             #endif
-            if(0 <= token_id  && token_id < LxRSV_NUM){     // 予約語なら
+            if(0 <= token_id  && token_id < LxOP_NUM){     // 予約語なら
                 if(token_id != LxEQU && token_id != LxORG && token_id != LxDC && token_id != LxDS){
                     pca = pca + searchSize(token_id);
                     skipToNewLineOrEOF();
@@ -204,7 +204,7 @@ public void pass1(FILE sourcefp){
             else if(token_id == LxEOF){
             } 
         
-            else if(0 <= token_id  && token_id < LxRSV_NUM){
+            else if(0 <= token_id  && token_id < LxOP_NUM){
                 pca = pca + searchSize(token_id);
                 skipToNewLineOrEOF();
                 token_id = getToken();

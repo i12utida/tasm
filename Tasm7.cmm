@@ -1,8 +1,10 @@
+// コメント付与終了
+
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
 #include <errno.hmm>
-//#include <syslib.hmm>       // TaCで実行する場合は入れる
+#include <syslib.hmm>       // TaCで実行する場合は入れる
 
 #include "Assemble.hmm"
 #include "Error.hmm"
@@ -10,8 +12,8 @@
 #include "Pass2.hmm"
 
 #define FLENGTH 31          // ファイル名は最大30文字 ('\0'を入れるために1つ分領域を多くとる)
-//#define DEBUG               // DEBUGする場合に使用
-//#define TAC                 // TaCで実行する場合に使用
+//#define DEBUG             // DEBUGする場合に使用
+#define TAC               // TaCで実行する場合に使用
 
 // 大域変数
 public FILE sourcefp;       // アセンブリ言語プログラムファイルファイルポインタ
@@ -79,10 +81,10 @@ public int main(int argc, char[][] argv){
         }
 
         // リストファイルのオープン処理
-        filename[flength - 2] = 'l';         //
-        filename[flength - 1] = 's';         // 拡張子を変更
-        filename[flength] = 't';             //
-        filename[flength + 1] = '\0';        //
+        filename[flength - 2] = 'l';        //
+        filename[flength - 1] = 's';        // 拡張子を変更
+        filename[flength] = 't';            //
+        filename[flength + 1] = '\0';       //
         
         #ifdef TAC                          // TaC上で動作させるなら
             remove(filename);               // リストファイルがあればファイルを削除
@@ -130,4 +132,5 @@ public int main(int argc, char[][] argv){
     fclose(listfp);                     // リストファイルをクローズ
     fclose(binaryfp);                   // バイナリファイルをクローズ
     return 0 ;                          // プログラム終了
+
 }
